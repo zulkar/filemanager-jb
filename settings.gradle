@@ -1,0 +1,8 @@
+rootProject.name = 'filemanager'
+
+include 'core'
+include 'gui'
+include 'containers:zip-handler'
+
+findProject(':containers:zip-handler')?.name = 'zip-handler'
+
