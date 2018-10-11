@@ -26,6 +26,11 @@ public class LocalStorage implements Storage {
     }
 
     @Override
+    public FileEntity[] listFiles(String dir) throws IOException {
+        return listFiles(new FileEntity(dir));
+    }
+
+    @Override
     public FileEntity[] listFiles(FileEntity dir) throws IOException {
         Validate.notNull(dir, "Directory is null");
 

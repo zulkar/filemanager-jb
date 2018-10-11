@@ -12,6 +12,8 @@ public interface Storage extends AutoCloseable {
 
     FileEntity[] listFiles(FileEntity dir) throws IOException;
 
+    FileEntity[] listFiles(String path) throws IOException;
+
     InputStream openInputStream(FileEntity entity) throws IOException;
 
     String getName();

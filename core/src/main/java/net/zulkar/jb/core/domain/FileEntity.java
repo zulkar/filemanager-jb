@@ -16,10 +16,6 @@ public class FileEntity {
         this.path = path;
     }
 
-    public FileEntity(FileEntity parent, String name) {
-        this(FilenameUtils.concat(parent.path, name));
-    }
-
     public String getPath() {
         return path;
     }
@@ -35,6 +31,10 @@ public class FileEntity {
 
     public String getExtension() {
         return FilenameUtils.getExtension(path);
+    }
+
+    public FileEntityAttrs getAttributes() {
+        return null;
     }
 
     @Override

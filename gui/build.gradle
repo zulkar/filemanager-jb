@@ -1,3 +1,4 @@
 dependencies {
     compile project(":core")
+    compile group: 'com.typesafe', name: 'config', version: '1.2.0'
 }
