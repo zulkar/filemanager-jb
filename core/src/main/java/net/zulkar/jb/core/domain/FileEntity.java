@@ -1,57 +1,29 @@
 package net.zulkar.jb.core.domain;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
+public interface FileEntity {
+    String getAbsolutePath();
 
-import java.util.Objects;
+    FileEntity getParent();
 
-/**
- * file entity, located either on local disk, zip or remote dir
- */
-public class FileEntity {
-    private final String path;
+    List<FileEntity> ls();
 
+    String getName();
 
-    public FileEntity(String path) {
-        this.path = path;
-    }
+    String getExtension();
 
-    public String getPath() {
-        return path;
-    }
+    InputStream openInputStream() throws IOException;
 
-    public FileEntity getParent() {
-        return new FileEntity(FilenameUtils.getFullPath(path));
-    }
+    boolean isDir();
 
-    public String getName() {
-        return FilenameUtils.getName(path);
-    }
+    boolean isContainer();
 
+    long getSize();
 
-    public String getExtension() {
-        return FilenameUtils.getExtension(path);
-    }
-
-    public FileEntityAttrs getAttributes() {
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return path;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FileEntity entity = (FileEntity) o;
-        return Objects.equals(path, entity.path);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(path);
-    }
+    LocalDateTime getModificationTime();
 }

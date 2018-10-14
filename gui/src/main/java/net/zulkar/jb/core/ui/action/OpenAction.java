@@ -16,7 +16,7 @@ public class OpenAction extends FileManagerAction {
     @Override
     protected void doAction(MainFrame mainFrame, ActionEvent e) throws IOException {
         FileEntity entity = mainFrame.getActivePanel().getCurrentEntity();
-        mainFrame.getActivePanel().cd(entity.getPath());
+        mainFrame.getActivePanel().cd(entity.getAbsolutePath());
     }
 
 

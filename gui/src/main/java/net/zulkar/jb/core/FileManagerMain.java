@@ -1,6 +1,8 @@
 package net.zulkar.jb.core;
 
 import com.typesafe.config.ConfigFactory;
+import net.zulkar.jb.core.handlers.zip.ZipHandler;
+import net.zulkar.jb.core.local.LocalStorage;
 import net.zulkar.jb.core.ui.ActionManager;
 import net.zulkar.jb.core.ui.MainFrame;
 import net.zulkar.jb.core.ui.action.OpenAction;
@@ -17,8 +19,8 @@ public class FileManagerMain extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                LocalStorage left = new LocalStorage(new File("/"), Collections.emptyList());
-                LocalStorage right = new LocalStorage(new File("/"), Collections.emptyList());
+                LocalStorage left = new LocalStorage(new ZipHandler());
+                LocalStorage right = new LocalStorage(new ZipHandler());
                 try {
                     MainFrame frame = new MainFrame();
                     ActionManager actionManager = new ActionManager(ConfigFactory.load("application.conf").getConfig("keymap"));

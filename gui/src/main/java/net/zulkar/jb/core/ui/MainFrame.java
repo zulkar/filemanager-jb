@@ -14,7 +14,7 @@ public class MainFrame extends JFrame {
     private FileListPanel rightPanel;
 
     private final IconLoader iconLoader = new IconLoader();
-    private boolean leftActive;
+    private boolean leftActive = true;
 
     public MainFrame() {
         super("FileManager");
@@ -25,6 +25,7 @@ public class MainFrame extends JFrame {
         rightPanel = new FileListPanel(iconLoader, actionManager);
         leftPanel.setCurrentStorage(initialLeft);
         rightPanel.setCurrentStorage(initialRight);
+        leftPanel.cd("/home/alexander/");
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 leftPanel, rightPanel);

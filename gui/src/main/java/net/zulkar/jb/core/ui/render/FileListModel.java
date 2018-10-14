@@ -1,13 +1,14 @@
 package net.zulkar.jb.core.ui.render;
 
 import net.zulkar.jb.core.domain.FileEntity;
-import net.zulkar.jb.core.domain.FileEntityAttrs;
 import net.zulkar.jb.core.domain.Storage;
+import net.zulkar.jb.core.local.LocalFileEntity;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class FileListModel extends AbstractTableModel {
@@ -26,7 +27,7 @@ public class FileListModel extends AbstractTableModel {
 
 
     public void setPath(String path) throws IOException {
-        data = storage.listFiles(path);
+        data = storage.resolve(path).ls().toArray(new FileEntity[0]);
     }
 
     @Override
@@ -56,46 +57,40 @@ public class FileListModel extends AbstractTableModel {
             case 1:
                 return entity.getName();
             case 2:
-                return toSizeColumn(entity.getAttributes());
+                return toSizeColumn(entity);
             case 3:
-                return toDateColumn(entity.getAttributes());
+                return toDateColumn(entity.getModificationTime());
             default:
                 return "";
         }
     }
 
     private Icon getIcon(FileEntity entity) {
-        if (entity.getAttributes() != null && entity.getAttributes().isDir()) {
+        if (entity.isDir()) {
             return loader.getDirectoryIcon();
         }
         return loader.get(entity.getExtension());
     }
 
-    private String toDateColumn(FileEntityAttrs attrs) {
-        if (attrs == null || attrs.getModificationTime() == null) {
-            return "???";
-        }
-        return attrs.getModificationTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    private String toDateColumn(LocalDateTime dateTime) {
+        return dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
-    private String toSizeColumn(FileEntityAttrs attributes) {
-        if (attributes == null) {
+    private String toSizeColumn(FileEntity entity) {
+        if (entity == null) {
             return "???";
         }
-        if (attributes.isDir()) {
+        if (entity.isDir()) {
             return "<DIR>";
         }
-        String hrSize = FileUtils.byteCountToDisplaySize(attributes.getSize());
-        if (attributes.isContainer()) {
+        String hrSize = FileUtils.byteCountToDisplaySize(entity.getSize());
+        if (entity.isContainer()) {
             return "<DIR> " + hrSize;
         }
         return hrSize;
     }
 
     public FileEntity getEntity(int selectedRow) {
-        if (selectedRow == 0) {
-            return new FileEntity("..");
-        }
-        return data == null ? null : data[selectedRow - 1];
+            return data == null ? null : data[selectedRow];
     }
 }
