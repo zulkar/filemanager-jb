@@ -1,3 +1,16 @@
+plugins {
+    id 'base'
+}
+task prepareTestFiles(type: Zip) {
+    from("${project.projectDir}/src/test/resources")
+    archiveName = 'resources.zip'
+    destinationDir = file("${project.buildDir}/resources/test")
+}
+
+afterEvaluate {
+    test.dependsOn(prepareTestFiles)
+}
+
 dependencies {
     compile project(":core")
     testCompile project(':core').sourceSets.test.output

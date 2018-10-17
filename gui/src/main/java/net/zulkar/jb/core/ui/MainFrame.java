@@ -23,6 +23,7 @@ public class MainFrame extends JFrame {
     public void init(Storage initialLeft, Storage initialRight, ActionManager actionManager) throws IOException {
         leftPanel = new FileListPanel("Left", iconLoader, actionManager, initialLeft);
         rightPanel = new FileListPanel("Right", iconLoader, actionManager, initialRight);
+        leftPanel.cd("/home/alexander/Downloads/test.zip/test/test1.zip");
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 leftPanel, rightPanel);
         splitPane.setResizeWeight(0.5);

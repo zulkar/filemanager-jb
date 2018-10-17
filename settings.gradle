@@ -3,7 +3,8 @@ rootProject.name = 'filemanager'
 include 'core'
 include 'gui'
 include 'containers:zip-handler'
+include 'ftp-support'
 
 findProject(':containers:zip-handler')?.name = 'zip-handler'
-include 'ftp-support'
+
 
