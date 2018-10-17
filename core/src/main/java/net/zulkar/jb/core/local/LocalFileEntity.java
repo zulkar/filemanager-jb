@@ -10,8 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +37,9 @@ public class LocalFileEntity implements FileEntity {
 
     @Override
     public FileEntity getParent() {
-        return new LocalFileEntity(file.getParentFile(), storage);
+        File parent = file.getParentFile();
+        return parent == null ? null : new LocalFileEntity(file.getParentFile(), storage);
+
     }
 
     @Override

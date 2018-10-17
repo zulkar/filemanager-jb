@@ -3,6 +3,8 @@ package net.zulkar.jb.core.ui.render;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ui.ActionManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,14 +17,14 @@ import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 public class FileListPanel extends JPanel {
 
+    private static final Logger log = LogManager.getLogger(FileListPanel.class);
     private FileListModel model;
-    private ActionManager actionManager;
     private JTable table;
-    private boolean active;
+    private String panelName;
 
-    public FileListPanel(IconLoader iconLoader, ActionManager actionManager) {
-        this.model = new FileListModel(iconLoader);
-        this.actionManager = actionManager;
+    public FileListPanel(String panelName, IconLoader iconLoader, ActionManager actionManager, Storage initialStorage) throws IOException {
+        this.panelName = panelName;
+        this.model = new FileListModel(iconLoader, initialStorage);
         table = new JTable();
         table.setPreferredScrollableViewportSize(table.getPreferredSize());
         table.setRowSelectionAllowed(true);
@@ -55,24 +57,27 @@ public class FileListPanel extends JPanel {
 
 
     public void setCurrentStorage(Storage storage) throws IOException {
+        log.debug("set {} at panel {}", storage, panelName);
         model.setStorage(storage);
         cd("/");
     }
 
-    public FileEntity getCurrentEntity() {
+    public FileEntity getCurrentEntity() throws IOException {
         return model.getEntity(table.getSelectedRow());
     }
 
     public void cd(String path) throws IOException {
+        log.debug("cd to {} in {}", path, panelName);
         model.setPath(path);
         model.fireTableDataChanged();
     }
 
-    public void makeActive(boolean active) {
-        this.active = active;
-        if (active) {
-            table.grabFocus();
-        }
+    public void makeActive() {
+        table.grabFocus();
+    }
+
+    public String getPanelName() {
+        return panelName;
     }
 
     public class SelectionChangeFocusListener implements FocusListener {

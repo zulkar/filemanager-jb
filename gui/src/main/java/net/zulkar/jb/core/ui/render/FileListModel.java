@@ -19,24 +19,33 @@ public class FileListModel extends AbstractTableModel {
     private Storage storage;
     private IconLoader loader;
     private FileEntity[] data;
+    private FileEntity current;
+    private FileEntity parent;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(SHORT).withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault());
 
-    public FileListModel(IconLoader loader) {
+    public FileListModel(IconLoader loader, Storage storage) throws IOException {
         this.loader = loader;
+        setStorage(storage);
     }
 
-    public void setStorage(Storage storage) {
+    public final void setStorage(Storage storage) throws IOException {
         this.storage = storage;
+        setPath("/");
     }
 
 
     public void setPath(String path) throws IOException {
-        data = storage.resolve(path).ls().toArray(new FileEntity[0]);
+        current = storage.resolve(path);
+        parent = current.getParent();
+        data = current.ls().toArray(new FileEntity[0]);
     }
 
     @Override
     public int getRowCount() {
-        return data == null ? 0 : data.length + 1;
+        if (data == null) {
+            return 1;
+        }
+        return parent == null ? data.length : data.length + 1;
     }
 
     @Override
@@ -50,23 +59,38 @@ public class FileListModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        if (data == null || data.length <= rowIndex) {
+        if (data == null) {
             return null;
         }
-        FileEntity entity = getEntity(rowIndex);
 
-        switch (columnIndex) {
-            case 0:
-                return this.getIcon(entity);
-            case 1:
-                return entity.getName();
-            case 2:
-                return toSizeColumn(entity);
-            case 3:
-                return toDateColumn(entity.getModificationTime());
-            default:
-                return "";
+        try {
+            FileEntity entity = getEntity(rowIndex);
+            if (entity == null) {
+                return null;
+            }
+
+            switch (columnIndex) {
+                case 0:
+                    return this.getIcon(entity);
+                case 1:
+                    return toName(entity, rowIndex);
+                case 2:
+                    return toSizeColumn(entity);
+                case 3:
+                    return toDateColumn(entity.getModificationTime());
+                default:
+                    return "";
+            }
+        } catch (IOException e) {
+            return null;
         }
+    }
+
+    private String toName(FileEntity entity, int rowIndex) throws IOException {
+        if (parent != null && rowIndex == 0) {
+            return "..";
+        }
+        return entity.getName();
     }
 
     private Icon getIcon(FileEntity entity) {
@@ -94,7 +118,16 @@ public class FileListModel extends AbstractTableModel {
         return hrSize;
     }
 
-    public FileEntity getEntity(int selectedRow) {
-        return data == null ? null : data[selectedRow];
+    public FileEntity getEntity(int selectedRow) throws IOException {
+        if (parent != null) {
+            if (selectedRow == 0) {
+                return parent;
+            } else {
+                return data[selectedRow - 1];
+            }
+
+        }
+        return data[selectedRow];
+
     }
 }

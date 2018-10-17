@@ -65,7 +65,12 @@ public class FtpStorage extends AbstractStorage {
             root.setType(FTPFile.DIRECTORY_TYPE);
             root.setSize(-1);
             root.setName("/");
-            return new FtpRemoteEntity(root, this, "/");
+            return new FtpRemoteEntity(root, this, "/") {
+                @Override
+                public FileEntity getParent() throws IOException {
+                    return null;
+                }
+            };
         }
 
 

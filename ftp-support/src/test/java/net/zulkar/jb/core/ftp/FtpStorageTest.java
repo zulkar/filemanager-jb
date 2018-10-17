@@ -69,13 +69,15 @@ class FtpStorageTest {
 
     @Test
     public void shouldLsRootDirFiles() throws IOException {
-        doTestLs("/", new String[]{"home", "toplevelRootFile.txt"});
+        FileEntity entity = doTestLs("/", new String[]{"home", "toplevelRootFile.txt"});
+        assertNull(entity.getParent());
     }
 
 
     @Test
     public void shouldLsHomeFiles() throws IOException {
-        doTestLs("/home/user", new String[]{"dir1", "emptyDir", "toplevelUserFile.txt"});
+        FileEntity entity = doTestLs("/home/user", new String[]{"dir1", "emptyDir", "toplevelUserFile.txt"});
+        assertNotNull(entity.getParent());
     }
 
     @Test
@@ -98,13 +100,14 @@ class FtpStorageTest {
         doTestFileFesolve("/toplevelRootFile.txt", "toplevelRootFile");
     }
 
-    private void doTestLs(String path, String[] expected) throws IOException {
+    private FileEntity doTestLs(String path, String[] expected) throws IOException {
         FtpParameters parameters = givenFtpParameters("user", "password");
         FtpStorage ftpStorage = new FtpStorage(containerHandler, parameters);
         FileEntity entity = ftpStorage.resolve(path);
         assertTrue(entity.isDir());
         assertEquals(FilenameUtils.normalizeNoEndSeparator(path), entity.getAbsolutePath());
         FileEntityTestUtils.checkFiles(expected, entity.ls());
+        return entity;
     }
 
     private void doTestFileFesolve(String path, String content) throws IOException {

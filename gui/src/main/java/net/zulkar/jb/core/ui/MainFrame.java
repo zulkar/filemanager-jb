@@ -21,12 +21,8 @@ public class MainFrame extends JFrame {
     }
 
     public void init(Storage initialLeft, Storage initialRight, ActionManager actionManager) throws IOException {
-        leftPanel = new FileListPanel(iconLoader, actionManager);
-        rightPanel = new FileListPanel(iconLoader, actionManager);
-        leftPanel.setCurrentStorage(initialLeft);
-        rightPanel.setCurrentStorage(initialRight);
-        leftPanel.cd("/home/alexander/");
-
+        leftPanel = new FileListPanel("Left", iconLoader, actionManager, initialLeft);
+        rightPanel = new FileListPanel("Right", iconLoader, actionManager, initialRight);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 leftPanel, rightPanel);
         splitPane.setResizeWeight(0.5);
@@ -40,7 +36,6 @@ public class MainFrame extends JFrame {
     }
 
     public FileListPanel getActivePanel() {
-        System.out.println("leftactive = " + leftActive);
         return leftActive ? leftPanel : rightPanel;
     }
 
@@ -49,10 +44,15 @@ public class MainFrame extends JFrame {
     }
 
     public void switchActivePanels() {
-        System.out.println("switching leftactive = " + leftActive);
         leftActive = !leftActive;
-        leftPanel.makeActive(leftActive);
-        rightPanel.makeActive(!leftActive);
+        if (leftActive) {
+            System.out.println("left active");
+            leftPanel.makeActive();
+        } else {
+            System.out.println("right active");
+            rightPanel.makeActive();
+        }
+
 
     }
 
