@@ -2,17 +2,17 @@ package net.zulkar.jb.core.domain;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
-public abstract class InitializableProxyFileEntity implements FileEntity {
+public abstract class ProxyFileEntity implements FileEntity {
     protected FileEntity entity;
 
-    protected InitializableProxyFileEntity(FileEntity entity) {
+    protected ProxyFileEntity(FileEntity entity) {
         this(entity, false);
     }
 
-    protected InitializableProxyFileEntity(FileEntity entity, boolean initialized) {
+    protected ProxyFileEntity(FileEntity entity, boolean initialized) {
         this.entity = entity;
     }
 
@@ -25,12 +25,12 @@ public abstract class InitializableProxyFileEntity implements FileEntity {
 
 
     @Override
-    public FileEntity getParent() {
+    public FileEntity getParent() throws IOException {
         return entity.getParent();
     }
 
     @Override
-    public List<FileEntity> ls() {
+    public List<FileEntity> ls() throws IOException {
         return entity.ls();
     }
 
@@ -65,7 +65,7 @@ public abstract class InitializableProxyFileEntity implements FileEntity {
     }
 
     @Override
-    public LocalDateTime getModificationTime() {
+    public Instant getModificationTime() {
         return entity.getModificationTime();
     }
 }

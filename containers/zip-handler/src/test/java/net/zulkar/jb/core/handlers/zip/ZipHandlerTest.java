@@ -105,7 +105,7 @@ class ZipHandlerTest {
     }
 
 
-    private FileEntity resolve(String innerPath) throws FileNotFoundException {
+    private FileEntity resolve(String innerPath) throws IOException {
         FileEntity entity = zipHandler.createFrom(resourceZipFileEntity);
         String[] pathElements = StringUtils.split(innerPath, "/");
         for (String pathElement : pathElements) {

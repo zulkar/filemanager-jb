@@ -85,12 +85,12 @@ public class LocalFileEntity implements FileEntity {
 
     @Override
     public long getSize() {
-        return file.getTotalSpace();
+        return file.length();
     }
 
     @Override
-    public LocalDateTime getModificationTime() {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault());
+    public Instant getModificationTime() {
+        return Instant.ofEpochMilli(file.lastModified());
     }
 
 

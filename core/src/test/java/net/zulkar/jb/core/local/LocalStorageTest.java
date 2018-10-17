@@ -5,6 +5,9 @@ import net.zulkar.jb.core.ResourcePathFinder;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,8 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
+@ExtendWith(MockitoExtension.class)
 class LocalStorageTest {
 
+    @Mock
     private ContainerHandler containerHandler;
     private File resourceDir;
     private String resourcePath;
@@ -27,7 +32,6 @@ class LocalStorageTest {
         resourcePath = FilenameUtils.normalizeNoEndSeparator(resourceDir.getCanonicalPath(), true);
         localStorage = new LocalStorage(containerHandler);
     }
-
 
     @Test
     public void shouldResolveExistingFile() throws IOException {

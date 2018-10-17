@@ -76,7 +76,7 @@ public class FileListPanel extends JPanel {
     }
 
     public class SelectionChangeFocusListener implements FocusListener {
-        private int currentSelection = -1;
+        private int currentSelection = 0;
 
         @Override
         public void focusLost(FocusEvent e) {
@@ -86,13 +86,7 @@ public class FileListPanel extends JPanel {
 
         @Override
         public void focusGained(FocusEvent e) {
-            if (e.getCause() != FocusEvent.Cause.MOUSE_EVENT) {
-                if (currentSelection == -1) {
-                    currentSelection = 0;
-                }
-                table.setRowSelectionInterval(currentSelection, currentSelection);
-            }
-
+            table.setRowSelectionInterval(currentSelection, currentSelection);
         }
     }
 

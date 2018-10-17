@@ -1,7 +1,7 @@
 package net.zulkar.jb.core.handlers.zip;
 
 import net.zulkar.jb.core.domain.FileEntity;
-import net.zulkar.jb.core.domain.InitializableProxyFileEntity;
+import net.zulkar.jb.core.domain.ProxyFileEntity;
 import net.zulkar.jb.core.handlers.zip.tree.TreeNode;
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,7 +15,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
-class LazyZipArchiveFileEntity extends InitializableProxyFileEntity {
+class LazyZipArchiveFileEntity extends ProxyFileEntity {
     private ZipHandler zipHandler;
 
     private TreeNode<ZipEntry> root = new TreeNode<>(null);

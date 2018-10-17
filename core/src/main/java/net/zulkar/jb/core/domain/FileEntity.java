@@ -1,17 +1,16 @@
 package net.zulkar.jb.core.domain;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface FileEntity {
     String getAbsolutePath();
 
-    FileEntity getParent();
+    FileEntity getParent() throws IOException;
 
-    List<FileEntity> ls();
+    List<FileEntity> ls() throws IOException;
 
     String getName();
 
@@ -25,5 +24,5 @@ public interface FileEntity {
 
     long getSize();
 
-    LocalDateTime getModificationTime();
+    Instant getModificationTime();
 }

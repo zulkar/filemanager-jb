@@ -5,8 +5,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.Instant;
 import java.util.List;
 import java.util.zip.ZipEntry;
 
@@ -77,8 +76,8 @@ public class ZipFileEntity implements FileEntity {
     }
 
     @Override
-    public LocalDateTime getModificationTime() {
-        return LocalDateTime.ofInstant(zipEntry.getLastModifiedTime().toInstant(), ZoneId.systemDefault());
+    public Instant getModificationTime() {
+        return zipEntry.getLastModifiedTime().toInstant();
     }
 
     @Override

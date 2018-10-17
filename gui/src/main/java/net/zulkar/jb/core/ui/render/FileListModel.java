@@ -2,20 +2,24 @@ package net.zulkar.jb.core.ui.render;
 
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.domain.Storage;
-import net.zulkar.jb.core.local.LocalFileEntity;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
+import static java.time.format.FormatStyle.SHORT;
 
 public class FileListModel extends AbstractTableModel {
 
     private Storage storage;
     private IconLoader loader;
     private FileEntity[] data;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(SHORT).withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault());
 
     public FileListModel(IconLoader loader) {
         this.loader = loader;
@@ -72,8 +76,8 @@ public class FileListModel extends AbstractTableModel {
         return loader.get(entity.getExtension());
     }
 
-    private String toDateColumn(LocalDateTime dateTime) {
-        return dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    private String toDateColumn(Instant dateTime) {
+        return formatter.format(dateTime);
     }
 
     private String toSizeColumn(FileEntity entity) {
@@ -91,6 +95,6 @@ public class FileListModel extends AbstractTableModel {
     }
 
     public FileEntity getEntity(int selectedRow) {
-            return data == null ? null : data[selectedRow];
+        return data == null ? null : data[selectedRow];
     }
 }

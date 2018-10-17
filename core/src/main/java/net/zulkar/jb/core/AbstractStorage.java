@@ -5,6 +5,7 @@ import net.zulkar.jb.core.domain.Storage;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 public abstract class AbstractStorage implements Storage {
@@ -15,7 +16,7 @@ public abstract class AbstractStorage implements Storage {
         this.containerHandler = containerHandler;
     }
 
-    protected FileEntity resolveInnerPath(FileEntity entity, String fullPath) throws FileNotFoundException {
+    protected FileEntity resolveInnerPath(FileEntity entity, String fullPath) throws IOException {
         String internalPath = StringUtils.removeStart(fullPath, entity.getAbsolutePath());
         String[] pathElements = StringUtils.split(internalPath, "/");
 
