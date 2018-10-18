@@ -22,10 +22,10 @@ public class ActionManager {
         actionMap = new HashMap<>();
     }
 
-    public void init(MainFrame mainFrame, FileManagerAction.Factory<?>... factories) {
+    public void init(UiContext context, FileManagerAction.Factory<?>... factories) {
         for (FileManagerAction.Factory<?> factory : factories) {
             String actionId = factory.getId();
-            FileManagerAction action = factory.create(mainFrame);
+            FileManagerAction action = factory.create(context);
             actionMap.put(actionId, action);
         }
 

@@ -18,12 +18,12 @@ public class ZipHandler implements ContainerHandler {
     private static final List<String> SUPPORTED_EXTENSIONS = Arrays.asList("jar", "zip", "war", "ear");
 
     static {
-        MAX_FILE_SIZE = SystemUtils.getLongProperty("net.zulkar.jb.zip.maxfilesize", 0x8000000);//200 MB
+        MAX_FILE_SIZE = SystemUtils.getLongProperty("net.zulkar.jb.zip.maxfilesize", 200 * 1024 * 1024);//200 MB
     }
 
     @Override
     public boolean maySupport(FileEntity file) {
-        return SUPPORTED_EXTENSIONS.contains(file.getExtension());
+        return SUPPORTED_EXTENSIONS.contains(file.getExtension().toLowerCase());
     }
 
     @Override

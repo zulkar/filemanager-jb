@@ -5,13 +5,12 @@ import net.zulkar.jb.core.handlers.zip.ZipHandler;
 import net.zulkar.jb.core.local.LocalStorage;
 import net.zulkar.jb.core.ui.ActionManager;
 import net.zulkar.jb.core.ui.MainFrame;
+import net.zulkar.jb.core.ui.UiContext;
 import net.zulkar.jb.core.ui.action.OpenAction;
 import net.zulkar.jb.core.ui.action.SwitchAction;
 
 import javax.swing.*;
-import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 
 public class FileManagerMain extends JFrame {
 
@@ -25,7 +24,7 @@ public class FileManagerMain extends JFrame {
                     MainFrame frame = new MainFrame();
                     ActionManager actionManager = new ActionManager(ConfigFactory.load("application.conf").getConfig("keymap"));
 
-                    actionManager.init(frame,
+                    actionManager.init(new UiContext(frame),
                             new OpenAction.Factory(),
                             new SwitchAction.Factory()
                     );

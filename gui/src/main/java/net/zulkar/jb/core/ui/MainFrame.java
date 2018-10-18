@@ -57,4 +57,7 @@ public class MainFrame extends JFrame {
 
     }
 
+    public void setStatus(String status) {
+
+    }
 }
