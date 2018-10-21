@@ -30,7 +30,7 @@ class LocalStorageTest {
     public void before() throws IOException {
         resourceDir = ResourcePathFinder.getResourceFile("core.resource.txt").getParentFile();
         resourcePath = FilenameUtils.normalizeNoEndSeparator(resourceDir.getCanonicalPath(), true);
-        localStorage = new LocalStorage(containerHandler);
+        localStorage = new LocalStorage(containerHandler, new File("/"));
     }
 
     @Test

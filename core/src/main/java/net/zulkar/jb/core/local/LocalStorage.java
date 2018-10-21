@@ -12,10 +12,9 @@ import java.io.IOException;
 
 public class LocalStorage extends AbstractStorage {
 
-    private ContainerHandler containerHandler;
 
-    public LocalStorage(ContainerHandler containerHandler) {
-        super(containerHandler);
+    public LocalStorage(ContainerHandler containerHandler, File fileRoot) {
+        super(containerHandler, fileRoot.getPath());
     }
 
     @Override
@@ -59,4 +58,8 @@ public class LocalStorage extends AbstractStorage {
     }
 
 
+    @Override
+    public String toString() {
+        return "LocalStorage: " + getName();
+    }
 }

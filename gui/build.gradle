@@ -1,5 +1,6 @@
 dependencies {
     compile project(":core")
+    compile project(":ftp-support")
     compile project(":containers:zip-handler")
     compile group: 'com.typesafe', name: 'config', version: '1.2.0'
 }

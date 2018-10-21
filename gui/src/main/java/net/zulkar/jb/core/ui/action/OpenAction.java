@@ -1,7 +1,7 @@
 package net.zulkar.jb.core.ui.action;
 
 import net.zulkar.jb.core.domain.FileEntity;
-import net.zulkar.jb.core.ui.UiContext;
+import net.zulkar.jb.core.UiContext;
 import net.zulkar.jb.core.ui.preview.Previewer;
 import net.zulkar.jb.core.ui.render.FileListPanel;
 import org.apache.logging.log4j.LogManager;
@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class OpenAction extends FileManagerAction {
 
-    private static final Logger log = LogManager.getLogger(FileListPanel.class);
+    private static final Logger log = LogManager.getLogger(OpenAction.class);
     private final Previewer previewer;
 
 

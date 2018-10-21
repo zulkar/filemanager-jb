@@ -14,7 +14,7 @@ public class MainFrame extends JFrame {
     private FileListPanel rightPanel;
 
     private final IconLoader iconLoader = new IconLoader();
-    private boolean leftActive = true;
+    private boolean leftActive = false;
 
     public MainFrame() {
         super("FileManager");
@@ -36,6 +36,14 @@ public class MainFrame extends JFrame {
         this.setVisible(true);
     }
 
+
+    public FileListPanel getLeftPanel() {
+        return leftPanel;
+    }
+
+    public FileListPanel getRightPanel() {
+        return rightPanel;
+    }
     public FileListPanel getActivePanel() {
         return leftActive ? leftPanel : rightPanel;
     }

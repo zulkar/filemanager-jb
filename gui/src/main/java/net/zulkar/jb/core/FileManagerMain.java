@@ -5,11 +5,12 @@ import net.zulkar.jb.core.handlers.zip.ZipHandler;
 import net.zulkar.jb.core.local.LocalStorage;
 import net.zulkar.jb.core.ui.ActionManager;
 import net.zulkar.jb.core.ui.MainFrame;
-import net.zulkar.jb.core.ui.UiContext;
+import net.zulkar.jb.core.ui.action.ChangeStorageAction;
 import net.zulkar.jb.core.ui.action.OpenAction;
 import net.zulkar.jb.core.ui.action.SwitchAction;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 
 public class FileManagerMain extends JFrame {
@@ -18,17 +19,18 @@ public class FileManagerMain extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                LocalStorage left = new LocalStorage(new ZipHandler());
-                LocalStorage right = new LocalStorage(new ZipHandler());
+                LocalStorage storage = new LocalStorage(new ZipHandler(), new File("/"));
                 try {
                     MainFrame frame = new MainFrame();
                     ActionManager actionManager = new ActionManager(ConfigFactory.load("application.conf").getConfig("keymap"));
 
                     actionManager.init(new UiContext(frame),
                             new OpenAction.Factory(),
-                            new SwitchAction.Factory()
+                            new SwitchAction.Factory(),
+                            new ChangeStorageAction.FactoryLeftPanel(),
+                            new ChangeStorageAction.FactoryRightPanel()
                     );
-                    frame.init(left, right, actionManager);
+                    frame.init(storage, storage, actionManager);
 
 
                     frame.pack();

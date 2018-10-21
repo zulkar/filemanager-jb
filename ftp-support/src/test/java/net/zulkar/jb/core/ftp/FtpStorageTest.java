@@ -3,11 +3,10 @@ package net.zulkar.jb.core.ftp;
 import net.zulkar.jb.core.ContainerHandler;
 import net.zulkar.jb.core.FileEntityTestUtils;
 import net.zulkar.jb.core.domain.FileEntity;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockftpserver.fake.FakeFtpServer;
 import org.mockftpserver.fake.UserAccount;
@@ -18,7 +17,9 @@ import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,13 +29,20 @@ class FtpStorageTest {
     @Mock
     private ContainerHandler containerHandler;
 
+    private FtpStorage ftpStorage;
+
     @BeforeAll
-    public static void initServer() throws InterruptedException {
+    public static void initServer() throws InterruptedException, IOException {
         server = new FakeFtpServer();
         server.addUserAccount(new UserAccount("user", "password", "/home/user"));
         server.setFileSystem(createFileSystem());
         server.setServerControlPort(0);
         server.start();
+        System.out.println("starting server at " + server.getServerControlPort());
+        for (File cacheDirectory : FtpStorage.getCacheDirectories()) {
+            FileUtils.deleteDirectory(cacheDirectory);
+        }
+
     }
 
     private static FileSystem createFileSystem() {
@@ -53,16 +61,9 @@ class FtpStorageTest {
         server.stop();
     }
 
-    @Test
-    public void shouldConnectWithCredentials() throws IOException {
-        FtpParameters parameters = givenFtpParameters("user", "password");
-        FtpStorage ftpStorage = new FtpStorage(containerHandler, parameters);
-    }
 
     @Test
     public void shouldResolveRootDirFiles() throws IOException {
-        FtpParameters parameters = givenFtpParameters("user", "password");
-        FtpStorage ftpStorage = new FtpStorage(containerHandler, parameters);
         assertNotNull(ftpStorage.resolve("/"));
         assertNotNull(ftpStorage.resolve(""));
     }
@@ -96,13 +97,22 @@ class FtpStorageTest {
     }
 
     @Test
-    public void shouldResolveTopFileName() throws IOException {
+    public void shouldResolveFileNameTwice() throws IOException {
+        doTestFileFesolve("/toplevelRootFile.txt", "toplevelRootFile");
         doTestFileFesolve("/toplevelRootFile.txt", "toplevelRootFile");
     }
 
+    @Test
+    public void shouldResolveParent() throws IOException {
+        FileEntity entity = doTestFileFesolve("/home/user/toplevelUserFile.txt", "toplevelUserFile");
+        doTestFileFesolve("/home/user/toplevelUserFile.txt", "toplevelUserFile");
+        FileEntity parent = entity.getParent();
+        assertTrue(parent.isDir());
+        assertEquals("/home/user", parent.getAbsolutePath());
+    }
+
     private FileEntity doTestLs(String path, String[] expected) throws IOException {
-        FtpParameters parameters = givenFtpParameters("user", "password");
-        FtpStorage ftpStorage = new FtpStorage(containerHandler, parameters);
+
         FileEntity entity = ftpStorage.resolve(path);
         assertTrue(entity.isDir());
         assertEquals(FilenameUtils.normalizeNoEndSeparator(path), entity.getAbsolutePath());
@@ -110,19 +120,21 @@ class FtpStorageTest {
         return entity;
     }
 
-    private void doTestFileFesolve(String path, String content) throws IOException {
-        FtpParameters parameters = givenFtpParameters("user", "password");
-        FtpStorage ftpStorage = new FtpStorage(containerHandler, parameters);
+    private FileEntity doTestFileFesolve(String path, String content) throws IOException {
+
         FileEntity entity = ftpStorage.resolve(path);
         assertFalse(entity.isDir());
         assertEquals(path, entity.getAbsolutePath());
-        assertEquals(content, IOUtils.toString(entity.openInputStream()));
+        try (InputStream is = entity.openInputStream()) {
+            assertEquals(content, IOUtils.toString(is));
+        }
+
+        return entity;
     }
 
     @Test
     public void shouldNotConnectWithBadCredentials() throws IOException {
         FtpParameters parameters = givenFtpParameters("user", "bad password");
-
         assertThrows(IOException.class, () -> new FtpStorage(containerHandler, parameters));
     }
 
@@ -130,10 +142,24 @@ class FtpStorageTest {
         FtpParameters ftpParameters = new FtpParameters();
         ftpParameters.setHost("localhost");
         ftpParameters.setPort(server.getServerControlPort());
+        //ftpParameters.setPort(2121);
         ftpParameters.setUser(user);
+        //ftpParameters.setUser("anonymous");
         ftpParameters.setPassword(password);
-        ftpParameters.setTimeoutMilliseconds(30000);
+        //ftpParameters.setPassword("");
         return ftpParameters;
     }
+
+    @BeforeEach
+    public void createFtpStorage() throws IOException {
+        FtpParameters parameters = givenFtpParameters("user", "password");
+        ftpStorage = new FtpStorage(containerHandler, parameters);
+    }
+
+    @AfterEach
+    public void deleteFtpStorage() throws Exception {
+        ftpStorage.close();
+    }
+
 
 }

@@ -27,7 +27,7 @@ public class FtpRemoteEntity implements FileEntity {
 
     @Override
     public FileEntity getParent() throws IOException {
-        return ftpStorage.resolve(FilenameUtils.getPath(getAbsolutePath()));
+        return ftpStorage.resolve(FilenameUtils.getFullPath(getAbsolutePath()));
     }
 
     @Override
@@ -67,6 +67,9 @@ public class FtpRemoteEntity implements FileEntity {
 
     @Override
     public Instant getModificationTime() {
+        if (file == null || file.getTimestamp() == null) {
+            return Instant.ofEpochMilli(0);
+        }
         return file.getTimestamp().toInstant();
     }
 }

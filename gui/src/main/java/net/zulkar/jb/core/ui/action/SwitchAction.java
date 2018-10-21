@@ -1,6 +1,6 @@
 package net.zulkar.jb.core.ui.action;
 
-import net.zulkar.jb.core.ui.UiContext;
+import net.zulkar.jb.core.UiContext;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;

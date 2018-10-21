@@ -8,4 +8,5 @@ import java.io.IOException;
  */
 public interface Storage extends AutoCloseable {
     FileEntity resolve(String path) throws IOException;
+    String getName();
 }

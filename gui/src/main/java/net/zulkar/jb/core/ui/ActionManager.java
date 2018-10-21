@@ -2,6 +2,7 @@ package net.zulkar.jb.core.ui;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
+import net.zulkar.jb.core.UiContext;
 import net.zulkar.jb.core.ui.action.FileManagerAction;
 
 import javax.swing.*;
