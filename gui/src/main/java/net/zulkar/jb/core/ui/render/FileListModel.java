@@ -3,6 +3,8 @@ package net.zulkar.jb.core.ui.render;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.domain.Storage;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -20,7 +22,7 @@ import static net.zulkar.jb.core.ui.render.FileEntityComparators.dirFirst;
 import static net.zulkar.jb.core.ui.render.FileEntityComparators.nameIgnoreCase;
 
 public class FileListModel extends AbstractTableModel {
-
+    private static final Logger log = LogManager.getLogger(FileListModel.class);
     private static final String[] HEADERS = {"", "Name", "Size", "Modified"};
     private Storage storage;
     private IconLoader loader;
@@ -44,10 +46,10 @@ public class FileListModel extends AbstractTableModel {
 
     public void setPath(String path) throws IOException {
         FileEntity newCurrent = storage.resolve(path);
-
         if (newCurrent != null) {
             List<FileEntity> newData = newCurrent.ls();
             if (newData != null) {
+                log.debug("setting path to {}", path);
                 parent = newCurrent.getParent();
                 data = newData.toArray(new FileEntity[0]);
                 Arrays.sort(data, sortComparator);
@@ -55,6 +57,7 @@ public class FileListModel extends AbstractTableModel {
                 return;
             }
         }
+        log.debug("cannot cd to {}", path);
         throw new IllegalArgumentException(String.format("Cannot cd into %s", path));
 
     }
@@ -101,6 +104,7 @@ public class FileListModel extends AbstractTableModel {
                     return "";
             }
         } catch (IOException e) {
+            log.error("Exception getting {}:{}", rowIndex, columnIndex, e);
             return null;
         }
     }

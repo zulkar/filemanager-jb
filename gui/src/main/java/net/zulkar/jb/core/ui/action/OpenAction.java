@@ -1,7 +1,7 @@
 package net.zulkar.jb.core.ui.action;
 
-import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.UiContext;
+import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.ui.preview.Previewer;
 import net.zulkar.jb.core.ui.render.FileListPanel;
 import org.apache.logging.log4j.LogManager;
@@ -32,7 +32,7 @@ public class OpenAction extends FileManagerAction {
         } else if (entity.isDir() || entity.isContainer()) {
             log.debug("moving to {} at {}", entity, activePanel.getPanelName());
             activePanel.cd(entity.getAbsolutePath());
-
+            context.getMainFrame().setStatus("");
         } else if (previewer.supports(entity)) {
             previewer.preview(entity);
         } else {

@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,18 +33,15 @@ public class StorageManager implements AutoCloseable {
         return Stream.concat(storages.stream(), storageMap.values().stream()).collect(Collectors.toList()).toArray(new Storage[0]);
     }
 
-    public Storage createFtpStorage(FtpParameters parameters) {
-        try {
-            FtpStorage ftpStorage = storageMap.get(parameters);
-            if (ftpStorage == null) {
-                ftpStorage = new FtpStorage(handler, parameters);
-                storageMap.put(parameters, ftpStorage);
-            }
-            return ftpStorage;
-        } catch (Exception e) {
-            log.error(e);
-            return null;
+    public Storage createFtpStorage(FtpParameters parameters) throws IOException {
+
+        FtpStorage ftpStorage = storageMap.get(parameters);
+        if (ftpStorage == null) {
+            ftpStorage = new FtpStorage(handler, parameters);
+            storageMap.put(parameters, ftpStorage);
         }
+        return ftpStorage;
+
 
     }
 

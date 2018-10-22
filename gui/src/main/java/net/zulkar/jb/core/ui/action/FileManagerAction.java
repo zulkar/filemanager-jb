@@ -18,9 +18,8 @@ public abstract class FileManagerAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         try {
             doAction(e);
-        } catch (IOException e1) {
-            //todo
-            e1.printStackTrace();
+        } catch (IOException ex) {
+            context.getMainFrame().setStatus(ex);
         }
     }
 

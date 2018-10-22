@@ -116,6 +116,7 @@ public class FileListPanel extends JPanel {
                 model.fireTableDataChanged();
             } catch (IOException e) {
                 log.error(e);
+                mainFrame.setStatus(e);
             }
 
         });

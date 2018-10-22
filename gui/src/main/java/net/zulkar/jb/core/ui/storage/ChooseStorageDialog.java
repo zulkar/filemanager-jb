@@ -4,14 +4,18 @@ import net.zulkar.jb.core.StorageManager;
 import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ftp.FtpParameters;
 import net.zulkar.jb.core.ui.MainFrame;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.text.NumberFormat;
 
 public class ChooseStorageDialog extends JDialog {
+    private static final Logger log = LogManager.getLogger(ChooseStorageDialog.class);
     private final JList<Storage> jList;
     private final StorageManager storageManager;
     private volatile Storage chosenStorage;
@@ -103,17 +107,33 @@ public class ChooseStorageDialog extends JDialog {
     }
 
     private void createFtpStorage(ActionEvent actionEvent) {
+        try {
+            FtpParameters parameters = getFtpParameters();
+            if (parameters == null) return;
+
+            this.chosenStorage = storageManager.createFtpStorage(parameters);
+            this.dispose();
+        } catch (IOException e) {
+            log.error(e);
+            JOptionPane.showMessageDialog(this,
+                    "Cannot create FTP storage : " + e.getMessage(),
+                    "IO Exception",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    private FtpParameters getFtpParameters() {
         Integer port = getPortValue();
         if (port == -1) {
-            return;
+            return null;
         }
         FtpParameters parameters = new FtpParameters();
         parameters.setHost(hostField.getText());
         parameters.setPort(port);
         parameters.setPassword(passwordField.getText());
         parameters.setUser(userField.getText());
-        this.chosenStorage = storageManager.createFtpStorage(parameters);
-        this.dispose();
+        return parameters;
     }
 
     private int getPortValue() {

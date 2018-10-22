@@ -8,7 +8,7 @@ import net.zulkar.jb.core.ui.MainFrame;
 import net.zulkar.jb.core.ui.action.ChangeStorageAction;
 import net.zulkar.jb.core.ui.action.OpenAction;
 import net.zulkar.jb.core.ui.action.SwitchAction;
-import net.zulkar.jb.core.ui.render.IconLoader;
+import net.zulkar.jb.core.ui.render.SystemIconLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +21,7 @@ public class FileManagerMain extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             LocalStorage storage = new LocalStorage(new ZipHandler(), new File("/"));
-            try (IconLoader iconLoader = new IconLoader();
+            try (SystemIconLoader iconLoader = new SystemIconLoader();
                  StorageManager storageManager = new StorageManager()) {
                 MainFrame frame = new MainFrame(iconLoader);
                 ActionManager actionManager = new ActionManager(ConfigFactory.load("application.conf"));

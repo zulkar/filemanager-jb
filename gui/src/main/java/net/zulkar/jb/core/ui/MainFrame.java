@@ -15,6 +15,7 @@ public class MainFrame extends JFrame {
 
     private final IconLoader iconLoader;
     private FileListPanel activePanel;
+    private JLabel statusBar;
 
     public MainFrame(IconLoader iconLoader) throws IOException {
         super("FileManager");
@@ -30,11 +31,14 @@ public class MainFrame extends JFrame {
         add(splitPane, BorderLayout.CENTER);
         setFocusTraversalKeysEnabled(false);
         setMinimumSize(new Dimension(400, 400));
+        statusBar = new JLabel("--");
+        this.add(statusBar, BorderLayout.PAGE_END);
         this.pack();
         this.setLocationByPlatform(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
         leftPanel.makeActive();
+
         validate();
     }
 
@@ -65,7 +69,11 @@ public class MainFrame extends JFrame {
     }
 
     public void setStatus(String status) {
+        SwingUtilities.invokeLater(() -> statusBar.setText(status));
+    }
 
+    public void setStatus(Throwable t) {
+        SwingUtilities.invokeLater(() -> statusBar.setText(t.getMessage()));
     }
 
     public void makeActive(FileListPanel fileListPanel) {
