@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public abstract class AbstractStorage<FE extends FileEntity> implements Storage {
     private static final Logger log = LogManager.getLogger(AbstractStorage.class);
@@ -32,7 +33,7 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
     public FileEntity resolve(String path) throws IOException {
         path = FilenameUtils.normalizeNoEndSeparator(path, true);
 
-        FE entity = resolveRealEntity(path);
+        FileEntity entity = resolveRealEntity(path);
         String internalPath = StringUtils.removeStart(path, entity.getAbsolutePath());
         if (StringUtils.isEmpty(internalPath)) {
             return wrapIfContainer(entity);
@@ -41,7 +42,7 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
         return resolveInnerPath(entity, path, internalPath);
     }
 
-    protected FE resolveRealEntity(String path) throws IOException {
+    protected FileEntity resolveRealEntity(String path) throws IOException {
         FE file = tryGetRealEntity(path);
         if (file != null) {
             log.debug("{}: Resolving path {} to real fileEntity", name, path);
@@ -53,46 +54,59 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
 
     }
 
-    private FE resolveRealFilePathDescending(String path) throws IOException {
-        String[] pathElements = StringUtils.split(path, "/");
-        if (pathElements == null || pathElements.length == 0) {
-            return getRootEntity();
-        }
-        FE current = getRootEntity();
-        for (String pathElement : pathElements) {
-            FE next = getFrom(current, pathElement);
-            if (next == null) {
-                if (current.isDir()) {
-                    throw new FileNotFoundException(path);
-                }
-                return current;
-            }
-            current = next;
-        }
-        throw new IllegalStateException(String.format("descending to bottom %s : %s", path, current)); // should not happen
-    }
 
-    protected abstract FE getFrom(FE current, String pathElement) throws IOException;
+    protected abstract FE getFrom(FileEntity current, String pathElement) throws IOException;
 
     protected abstract FE tryGetRealEntity(String path) throws IOException;
 
     protected abstract FE getRootEntity();
 
-    protected FileEntity resolveInnerPath(FE entity, String fullPath, String internalPath) throws IOException {
-        String[] pathElements = StringUtils.split(internalPath, "/");
-        log.debug("resolving inner entity {} inside {} ", internalPath, entity.getAbsolutePath());
-        FileEntity current = wrapIfContainer(entity);
+    protected FileEntity resolveInnerPath(FileEntity entity, String fullPath, String internalPath) throws IOException {
+        return descend(fullPath, internalPath, entity,
+                (current, pathElement) -> findChildForUnknownEntities(pathElement, current.ls()),
+                (current) -> {
+                    log.error("Cannot resolve {} inside {}", internalPath, current);
+                    throw new FileNotFoundException(fullPath);
+                },
+                this::wrapIfContainer);
+    }
+
+    private FileEntity resolveRealFilePathDescending(String path) throws IOException {
+        return descend(path, path, getRootEntity(),
+                this::getFrom,
+                current -> {
+                    if (current.isDir()) {
+                        throw new FileNotFoundException(path);
+                    }
+                    return current;
+                },
+                Function.identity()
+        );
+    }
+
+
+    private FileEntity descend(String pathForLogs,
+                               String pathToDescend,
+                               FileEntity startFrom,
+                               NextFunction next,
+                               NextIsNull nextIsNull,
+                               Function<FileEntity, FileEntity> map) throws IOException {
+        String[] pathElements = StringUtils.split(pathToDescend, "/");
+        if (pathElements == null || pathElements.length == 0) {
+            return startFrom;
+        }
+        FileEntity current = map.apply(startFrom);
         for (String pathElement : pathElements) {
-            FileEntity nextEntity = findChild(pathElement, current.ls());
+            FileEntity nextEntity = next.getNext(current, pathElement);
             if (nextEntity == null) {
-                log.error("Cannot resolve {} inside {}", pathElement, current);
-                throw new FileNotFoundException(fullPath);
+                return nextIsNull.getCurrent(current);
             }
-            current = wrapIfContainer(nextEntity);
+            current = map.apply(nextEntity);
         }
         return current;
     }
-    
+
+
     public FileEntity wrapIfContainer(FileEntity entity) {
         if (containerHandler.maySupport(entity)) {
             return containerHandler.createFrom(entity);
@@ -100,11 +114,21 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
         return entity;
     }
 
-    protected FileEntity findChild(String pathElement, List<FileEntity> children) {
+    private FileEntity findChildForUnknownEntities(String pathElement, List<FileEntity> children) {
         if (children == null) {
             return null;
         }
         return children.stream().filter(Objects::nonNull).filter(c -> c.getName().equals(pathElement)).findFirst().orElse(null);
     }
 
+
+    @FunctionalInterface
+    public interface NextFunction {
+        FileEntity getNext(FileEntity e, String next) throws IOException;
+    }
+
+    @FunctionalInterface
+    public interface NextIsNull {
+        FileEntity getCurrent(FileEntity current) throws FileNotFoundException;
+    }
 }

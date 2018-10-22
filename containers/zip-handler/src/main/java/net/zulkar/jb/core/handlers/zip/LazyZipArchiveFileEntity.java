@@ -93,6 +93,7 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
     }
 
     List<FileEntity> ls(String path) {
+        //todo - replace with descend
         TreeNode<ZipEntry> node = root;
         String[] pathElements = StringUtils.split(path, "/");
         for (String pathElement : pathElements) {

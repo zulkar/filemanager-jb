@@ -2,6 +2,7 @@ package net.zulkar.jb.core.local;
 
 import net.zulkar.jb.core.AbstractStorage;
 import net.zulkar.jb.core.ContainerHandler;
+import net.zulkar.jb.core.domain.FileEntity;
 import org.apache.commons.lang3.Validate;
 
 import java.io.File;
@@ -29,8 +30,8 @@ public class LocalStorage extends AbstractStorage<LocalFileEntity> {
     }
 
     @Override
-    protected LocalFileEntity getFrom(LocalFileEntity current, String pathElement) {
-        return tryGetRealEntity(new File(current.getLocalFile(), pathElement).getAbsolutePath());
+    protected LocalFileEntity getFrom(FileEntity current, String pathElement) {
+        return tryGetRealEntity(new File(current.getAbsolutePath(), pathElement).getAbsolutePath());
     }
 
     @Override

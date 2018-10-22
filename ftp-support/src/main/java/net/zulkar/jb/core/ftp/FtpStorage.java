@@ -50,8 +50,9 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
         log.info("Logged into to {}", ftpParameters.getHost());
     }
 
+
     @Override
-    protected FtpRemoteEntity getFrom(FtpRemoteEntity current, String pathElement) throws IOException {
+    protected FtpRemoteEntity getFrom(FileEntity current, String pathElement) throws IOException {
         FTPFile ftpFile = find(ftpClient.listFiles(current.getAbsolutePath()), pathElement);
         if (ftpFile == null) {
             return null;
