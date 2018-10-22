@@ -32,7 +32,7 @@ public class LocalFileEntity implements FileEntity {
 
     @Override
     public String getAbsolutePath() {
-        return file.getAbsolutePath();
+        return FilenameUtils.normalizeNoEndSeparator(file.getAbsolutePath(), true);
     }
 
     @Override
@@ -93,6 +93,9 @@ public class LocalFileEntity implements FileEntity {
         return Instant.ofEpochMilli(file.lastModified());
     }
 
+    public File getLocalFile() {
+        return file;
+    }
 
     @Override
     public boolean equals(Object o) {

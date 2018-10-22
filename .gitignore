@@ -104,4 +104,6 @@ hs_err_pid*
 !gradle-wrapper.jar
 
 #avoid ignoring zip-container test files
-!containers/zip-handler/src/test/resources/**.zip
+!/containers/zip-handler/src/test/resources/Dir1/empty.zip
+!/containers/zip-handler/src/test/resources/Dir1/Zdir3/Zdir3.zip
+!/core-integration-test/src/test/resources/storagetest.zip

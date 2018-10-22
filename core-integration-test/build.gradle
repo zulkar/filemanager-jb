@@ -1,0 +1,7 @@
+//this project is to test AbstractStorage in integration with ZIp handler - it is simpler, than writing a mock handler for this
+
+dependencies {
+    testCompile project(":core")
+    testCompile project(":containers:zip-handler")
+    testCompile project(':core').sourceSets.test.output
+}

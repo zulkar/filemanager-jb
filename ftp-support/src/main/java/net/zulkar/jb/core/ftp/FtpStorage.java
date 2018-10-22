@@ -6,7 +6,6 @@ import net.zulkar.jb.core.domain.FileEntity;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
@@ -20,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FtpStorage extends AbstractStorage {
+public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
     private static final Logger log = LogManager.getLogger(FtpStorage.class);
     private final static String PREFIX = "net.zulkar.jb-ftp";
     private final FTPClient ftpClient;
@@ -52,63 +51,42 @@ public class FtpStorage extends AbstractStorage {
     }
 
     @Override
-    public synchronized FileEntity resolve(String path) throws IOException {
-        log.debug("resolving {}", path);
-        path = FilenameUtils.normalizeNoEndSeparator(path);
-        FileEntity entity = findEntity(path);
-        log.debug("resolved {} as {}", path, entity.getAbsolutePath());
-        return resolveInnerPath(entity, path);
+    protected FtpRemoteEntity getFrom(FtpRemoteEntity current, String pathElement) throws IOException {
+        FTPFile ftpFile = find(ftpClient.listFiles(current.getAbsolutePath()), pathElement);
+        if (ftpFile == null) {
+            return null;
+        }
+        return new FtpRemoteEntity(ftpFile, this, FilenameUtils.normalizeNoEndSeparator(current.getAbsolutePath()) + "/" + pathElement);
     }
 
-
-    private FileEntity findEntity(String path) throws IOException {
-        String[] pathElements = StringUtils.split(path, "/");
-        if (pathElements == null) {
-            throw new IllegalArgumentException("cannot resolve null path");
+    @Override
+    protected FtpRemoteEntity tryGetRealEntity(String path) throws IOException {
+        String parent = FilenameUtils.getFullPathNoEndSeparator(path);
+        FTPFile ftpFile = find(ftpClient.listFiles(parent), FilenameUtils.getName(path));
+        if (ftpFile == null) {
+            return null;
         }
-        if (pathElements.length == 0) {
-            FTPFile root = new FTPFile();
-            root.setType(FTPFile.DIRECTORY_TYPE);
-            root.setSize(-1);
-            root.setName("/");
-            return new FtpRemoteEntity(root, this, "/") {
-                @Override
-                public FileEntity getParent() throws IOException {
-                    return null;
-                }
-            };
-        }
+        return new FtpRemoteEntity(ftpFile, this, FilenameUtils.normalizeNoEndSeparator(path));
+    }
 
-
-        ftpClient.printWorkingDirectory();
-        FTPFile file = find(ftpClient.listFiles("/"), pathElements[0]);
-        if (file == null) {
-            throw new FileNotFoundException(path);
-        }
-
-        int i = 1;
-        String currentPath = "/" + FilenameUtils.getBaseName(pathElements[0]);
-
-        while (i < pathElements.length) {
-            if (file.isDirectory()) {
-                FTPFile[] ftpFiles = ftpClient.listFiles(currentPath);
-                file = find(ftpFiles, pathElements[i]);
-                if (file == null) {
-                    break;
-                }
-                currentPath = FilenameUtils.normalizeNoEndSeparator(FilenameUtils.concat(currentPath, pathElements[i]), true);
-                i++;
-            } else {
-                return new FtpRemoteEntity(file, this, currentPath);
+    @Override
+    protected FtpRemoteEntity getRootEntity() {
+        FTPFile root = new FTPFile();
+        root.setType(FTPFile.DIRECTORY_TYPE);
+        root.setSize(-1);
+        root.setName("/");
+        return new FtpRemoteEntity(root, this, "/") {
+            @Override
+            public FileEntity getParent() throws IOException {
+                return null;
             }
-        }
-        if (file == null) {
-            throw new FileNotFoundException(path);
-        }
-        return wrapIfContainer(new FtpRemoteEntity(file, this, path));
+        };
     }
 
     private FTPFile find(FTPFile[] ftpFiles, String pathElement) {
+        if (ftpFiles == null || ftpFiles.length == 0) {
+            return null;
+        }
         return Arrays.stream(ftpFiles).filter(f -> f.getName().equals(pathElement)).findFirst().orElse(null);
     }
 

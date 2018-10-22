@@ -6,5 +6,5 @@ include 'containers:zip-handler'
 include 'ftp-support'
 
 findProject(':containers:zip-handler')?.name = 'zip-handler'
-
+include 'core-integration-test'
 

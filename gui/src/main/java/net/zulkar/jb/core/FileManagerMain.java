@@ -34,7 +34,6 @@ public class FileManagerMain extends JFrame {
 
 
                     frame.pack();
-                    //frame.setLocationByPlatform(true);
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     frame.setVisible(true);
                 } catch (IOException e) {
