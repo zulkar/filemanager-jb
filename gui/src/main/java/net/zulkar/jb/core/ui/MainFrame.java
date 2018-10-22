@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class MainFrame extends JFrame {
@@ -23,7 +25,7 @@ public class MainFrame extends JFrame {
         this.iconLoader = iconLoader;
     }
 
-    public void init(Storage initialLeft, Storage initialRight, ActionManager actionManager) throws IOException {
+    public void init(Storage initialLeft, Storage initialRight, ActionManager actionManager, Runnable onClose) throws IOException {
         leftPanel = new FileListPanel("Left", iconLoader, actionManager, initialLeft, this);
         rightPanel = new FileListPanel("Right", iconLoader, actionManager, initialRight, this);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
@@ -40,7 +42,19 @@ public class MainFrame extends JFrame {
         this.setVisible(true);
         leftPanel.makeActive();
 
+        setCloseListener(onClose);
+
         validate();
+    }
+
+    private void setCloseListener(Runnable onClose) {
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                onClose.run();
+                super.windowClosed(e);
+            }
+        });
     }
 
 
@@ -70,7 +84,7 @@ public class MainFrame extends JFrame {
     }
 
     public void setStatus(String status, Object... parameters) {
-        if(StringUtils.isEmpty(status)){
+        if (StringUtils.isEmpty(status)) {
             status = " ";
         }
         String finalStatus = status;

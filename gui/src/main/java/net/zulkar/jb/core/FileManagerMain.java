@@ -1,6 +1,7 @@
 package net.zulkar.jb.core;
 
 import com.typesafe.config.ConfigFactory;
+import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.handlers.zip.ZipHandler;
 import net.zulkar.jb.core.local.LocalStorage;
 import net.zulkar.jb.core.ui.ActionManager;
@@ -20,9 +21,10 @@ public class FileManagerMain extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            LocalStorage storage = new LocalStorage(new ZipHandler(), new File("/"));
-            try (SystemIconLoader iconLoader = new SystemIconLoader();
-                 StorageManager storageManager = new StorageManager()) {
+            try {
+                SystemIconLoader iconLoader = new SystemIconLoader();
+                StorageManager storageManager = new StorageManager();
+                Storage initialStorage = getInitialStorage(storageManager);
                 MainFrame frame = new MainFrame(iconLoader);
                 ActionManager actionManager = new ActionManager(ConfigFactory.load("application.conf"));
 
@@ -32,7 +34,7 @@ public class FileManagerMain extends JFrame {
                         new ChangeStorageAction.FactoryLeftPanel(),
                         new ChangeStorageAction.FactoryRightPanel()
                 );
-                frame.init(storage, storage, actionManager);
+                frame.init(initialStorage, initialStorage, actionManager, new CleanTmpRunnable(storageManager, iconLoader));
 
                 frame.pack();
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,4 +46,32 @@ public class FileManagerMain extends JFrame {
         });
     }
 
+    private static Storage getInitialStorage(StorageManager storageManager) {
+        Storage[] storages = storageManager.getAllAvailableStorages();
+        if(storages == null || storages.length ==0){
+            throw new IllegalStateException("No storages available!");
+        }
+        return storages[0];
+    }
+
+    private static class CleanTmpRunnable implements Runnable {
+        private final StorageManager storageManager;
+        private final SystemIconLoader iconLoader;
+
+        public CleanTmpRunnable(StorageManager storageManager, SystemIconLoader iconLoader) {
+            this.storageManager = storageManager;
+            this.iconLoader = iconLoader;
+        }
+
+        @Override
+        public void run() {
+            try {
+                storageManager.close();
+                iconLoader.close();
+            } catch (Exception e) {
+                log.error(e);
+            }
+
+        }
+    }
 }
