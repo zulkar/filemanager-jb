@@ -19,7 +19,7 @@ public abstract class FileManagerAction extends AbstractAction {
         try {
             doAction(e);
         } catch (IOException ex) {
-            context.getMainFrame().setStatus(ex);
+            context.getMainFrame().setStatus("Exception: %s",ex);
         }
     }
 

@@ -109,14 +109,19 @@ public class FileListPanel extends JPanel {
     public void cd(String path) {
         SwingUtilities.invokeLater(() -> {
             try {
-                log.debug("cd to {} in {}", path, panelName);
-                model.setPath(path);
-                currentPathField.setText(path);
-                select(0);
-                model.fireTableDataChanged();
+
+                if (model.setPath(path)) {
+                    log.debug("cd to {} in {}", path, panelName);
+                    currentPathField.setText(path);
+                    select(0);
+                    model.fireTableDataChanged();
+                } else {
+                    mainFrame.setStatus("Cannot cd into %s", path);
+                }
+
             } catch (IOException e) {
                 log.error(e);
-                mainFrame.setStatus(e);
+                mainFrame.setStatus("Cannot resolve %s", path);
             }
 
         });

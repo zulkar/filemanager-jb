@@ -44,7 +44,7 @@ public class FileListModel extends AbstractTableModel {
     }
 
 
-    public void setPath(String path) throws IOException {
+    public boolean setPath(String path) throws IOException {
         FileEntity newCurrent = storage.resolve(path);
         if (newCurrent != null) {
             List<FileEntity> newData = newCurrent.ls();
@@ -54,12 +54,12 @@ public class FileListModel extends AbstractTableModel {
                 data = newData.toArray(new FileEntity[0]);
                 Arrays.sort(data, sortComparator);
                 current = newCurrent;
-                return;
+                return true;
             }
+
         }
         log.debug("cannot cd to {}", path);
-        throw new IllegalArgumentException(String.format("Cannot cd into %s", path));
-
+        return false;
     }
 
     @Override

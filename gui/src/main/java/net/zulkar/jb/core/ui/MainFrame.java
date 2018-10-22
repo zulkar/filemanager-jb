@@ -3,6 +3,7 @@ package net.zulkar.jb.core.ui;
 import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ui.render.FileListPanel;
 import net.zulkar.jb.core.ui.render.IconLoader;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,8 +32,8 @@ public class MainFrame extends JFrame {
         add(splitPane, BorderLayout.CENTER);
         setFocusTraversalKeysEnabled(false);
         setMinimumSize(new Dimension(400, 400));
-        statusBar = new JLabel("--");
-        this.add(statusBar, BorderLayout.PAGE_END);
+        statusBar = new JLabel(" ");
+        this.add(statusBar, BorderLayout.SOUTH);
         this.pack();
         this.setLocationByPlatform(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,12 +69,12 @@ public class MainFrame extends JFrame {
 
     }
 
-    public void setStatus(String status) {
-        SwingUtilities.invokeLater(() -> statusBar.setText(status));
-    }
-
-    public void setStatus(Throwable t) {
-        SwingUtilities.invokeLater(() -> statusBar.setText(t.getMessage()));
+    public void setStatus(String status, Object... parameters) {
+        if(StringUtils.isEmpty(status)){
+            status = " ";
+        }
+        String finalStatus = status;
+        SwingUtilities.invokeLater(() -> statusBar.setText(String.format(finalStatus, parameters)));
     }
 
     public void makeActive(FileListPanel fileListPanel) {
