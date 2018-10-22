@@ -13,11 +13,12 @@ public class MainFrame extends JFrame {
     private FileListPanel leftPanel;
     private FileListPanel rightPanel;
 
-    private final IconLoader iconLoader = new IconLoader();
+    private final IconLoader iconLoader;
     private FileListPanel activePanel;
 
-    public MainFrame() {
+    public MainFrame(IconLoader iconLoader) throws IOException {
         super("FileManager");
+        this.iconLoader = iconLoader;
     }
 
     public void init(Storage initialLeft, Storage initialRight, ActionManager actionManager) throws IOException {
@@ -34,6 +35,7 @@ public class MainFrame extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
         leftPanel.makeActive();
+        validate();
     }
 
 

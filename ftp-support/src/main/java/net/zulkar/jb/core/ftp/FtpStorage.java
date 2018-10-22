@@ -114,9 +114,11 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
     synchronized InputStream getInputStream(String fullPath) throws IOException {
         File cachedFile = new File(cacheDir, fullPath);
         if (cachedFile.exists()) {
+            log.debug("{}: entity {} is cached in {}", this, fullPath, cachedFile);
             return new FileInputStream(cachedFile);
         } else {
-            if (cachedFile.getParentFile().mkdirs()) {
+            if (cachedFile.getParentFile().exists() || cachedFile.getParentFile().mkdirs()) {
+                log.debug("{}: entity {} to be cached in {}", this, fullPath, cachedFile);
                 try (FileOutputStream fos = new FileOutputStream(cachedFile);
                      BufferedOutputStream bos = new BufferedOutputStream(fos)) {
                     cacheInto(bos, fullPath);
@@ -124,14 +126,12 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
                 return new FileInputStream(cachedFile);
 
             } else { //try to read into memory
-                log.error("Cannot cache file {} into {}", fullPath, cachedFile);
+                log.error("Cannot cache file {} into {}, trying to read in memory", fullPath, cachedFile);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 cacheInto(bos, fullPath);
                 return new ByteArrayInputStream(bos.toByteArray());
             }
-
         }
-
     }
 
     private void cacheInto(OutputStream os, String fullPath) throws IOException {
@@ -150,6 +150,5 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
 
     public static File[] getCacheDirectories() {
         return new File(System.getProperty("java.io.tmpdir")).listFiles((d, n) -> n.startsWith(PREFIX));
-
     }
 }

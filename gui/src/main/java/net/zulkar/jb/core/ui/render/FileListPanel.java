@@ -57,6 +57,7 @@ public class FileListPanel extends JPanel {
         registerActions(actionManager);
 
         this.add(panel);
+        validate();
     }
 
     private JTable createTable() {

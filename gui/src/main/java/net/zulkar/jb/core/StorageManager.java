@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class StorageManager {
+public class StorageManager implements AutoCloseable {
 
     private static final Logger log = LogManager.getLogger(StorageManager.class);
     private final List<Storage> storages;
@@ -45,5 +45,16 @@ public class StorageManager {
             return null;
         }
 
+    }
+
+    @Override
+    public void close() throws Exception {
+        storageMap.values().forEach(f -> {
+            try {
+                f.close();
+            } catch (Exception e) {
+                log.error("Error closing {} ", f, e);
+            }
+        });
     }
 }

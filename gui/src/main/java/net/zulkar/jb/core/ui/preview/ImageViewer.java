@@ -23,11 +23,46 @@ public class ImageViewer extends AbstractPopupViewer {
     @Override
     protected Component createComponent(FileEntity entity) throws IOException {
         BufferedImage image = ImageIO.read(entity.openInputStream());
-        return new JLabel(new ImageIcon(image));
+        return new ImagePanel(image);
     }
 
     @Override
     public boolean supports(FileEntity entity) {
         return SUPPORTED_EXTENSIONS.contains(entity.getExtension().toLowerCase());
     }
+
+    private static class ImagePanel extends JPanel {
+
+        private Image originalImage;
+        private Image scaledImage;
+
+        public ImagePanel(Image originalImage) {
+            this.originalImage = originalImage;
+        }
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            int width = getWidth();
+            int height = getHeight();
+
+            if (width > 0 && height > 0) {
+                scaledImage = originalImage.getScaledInstance(getWidth(), getHeight(),
+                        Image.SCALE_DEFAULT);
+            }
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            return originalImage == null ? new Dimension(200, 200) : new Dimension(
+                    originalImage.getWidth(this), originalImage.getHeight(this));
+        }
+
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(scaledImage, 0, 0, null);
+        }
+    }
+
 }

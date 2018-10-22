@@ -12,10 +12,10 @@ public class UiContext {
     private final Previewer previewer;
     private final StorageManager storageManager;
 
-    public UiContext(MainFrame mainFrame) {
+    public UiContext(MainFrame mainFrame, StorageManager storageManager) {
         this.mainFrame = mainFrame;
         previewer = new UnionPreviewer(new ImageViewer(mainFrame), new TextPreviewer(mainFrame));
-        storageManager = new StorageManager();
+        this.storageManager = storageManager;
     }
 
     public MainFrame getMainFrame() {
