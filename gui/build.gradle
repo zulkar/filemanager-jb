@@ -3,4 +3,6 @@ dependencies {
     compile project(":ftp-support")
     compile project(":containers:zip-handler")
     compile group: 'com.typesafe', name: 'config', version: '1.2.0'
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.2'
+
 }

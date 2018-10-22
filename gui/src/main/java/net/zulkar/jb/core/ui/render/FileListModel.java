@@ -10,10 +10,14 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
 import static java.time.format.FormatStyle.SHORT;
+import static net.zulkar.jb.core.ui.render.FileEntityComparators.dirFirst;
+import static net.zulkar.jb.core.ui.render.FileEntityComparators.nameIgnoreCase;
 
 public class FileListModel extends AbstractTableModel {
 
@@ -23,11 +27,13 @@ public class FileListModel extends AbstractTableModel {
     private FileEntity[] data;
     private FileEntity current;
     private FileEntity parent;
+    private final Comparator<FileEntity> sortComparator;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(SHORT).withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault());
 
     public FileListModel(IconLoader loader, Storage storage) throws IOException {
         this.loader = loader;
         setStorage(storage);
+        sortComparator = dirFirst().thenComparing(nameIgnoreCase());
         setPath("/");
     }
 
@@ -44,6 +50,7 @@ public class FileListModel extends AbstractTableModel {
             if (newData != null) {
                 parent = newCurrent.getParent();
                 data = newData.toArray(new FileEntity[0]);
+                Arrays.sort(data, sortComparator);
                 current = newCurrent;
                 return;
             }
