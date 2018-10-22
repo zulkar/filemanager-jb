@@ -28,7 +28,7 @@ public class FtpStorage extends AbstractStorage {
     private final File cacheDir;
 
     public FtpStorage(ContainerHandler containerHandler, FtpParameters ftpParameters) throws IOException {
-        super(containerHandler, String.format("%s@%s:d", ftpParameters.getUser(), ftpParameters.getHost(), ftpParameters.getPort()));
+        super(containerHandler, String.format("%s@%s:%d", ftpParameters.getUser(), ftpParameters.getHost(), ftpParameters.getPort()));
         this.ftpParameters = ftpParameters;
         ftpClient = new FTPClient();
         connect();
@@ -55,13 +55,13 @@ public class FtpStorage extends AbstractStorage {
     public synchronized FileEntity resolve(String path) throws IOException {
         log.debug("resolving {}", path);
         path = FilenameUtils.normalizeNoEndSeparator(path);
-        FtpRemoteEntity entity = findEntity(path);
+        FileEntity entity = findEntity(path);
         log.debug("resolved {} as {}", path, entity.getAbsolutePath());
         return resolveInnerPath(entity, path);
     }
 
 
-    private FtpRemoteEntity findEntity(String path) throws IOException {
+    private FileEntity findEntity(String path) throws IOException {
         String[] pathElements = StringUtils.split(path, "/");
         if (pathElements == null) {
             throw new IllegalArgumentException("cannot resolve null path");
@@ -105,7 +105,7 @@ public class FtpStorage extends AbstractStorage {
         if (file == null) {
             throw new FileNotFoundException(path);
         }
-        return new FtpRemoteEntity(file, this, path);
+        return wrapIfContainer(new FtpRemoteEntity(file, this, path));
     }
 
     private FTPFile find(FTPFile[] ftpFiles, String pathElement) {
@@ -126,6 +126,7 @@ public class FtpStorage extends AbstractStorage {
                             this,
                             FilenameUtils.normalizeNoEndSeparator(
                                     FilenameUtils.concat(entity.getAbsolutePath(), f.getName()), true)))
+                    .map(this::wrapIfContainer)
                     .collect(Collectors.toList());
         }
         return null;

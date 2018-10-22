@@ -3,6 +3,7 @@ package net.zulkar.jb.core.ui.render;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ui.ActionManager;
+import net.zulkar.jb.core.ui.MainFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,21 +21,28 @@ public class FileListPanel extends JPanel {
     private static final Logger log = LogManager.getLogger(FileListPanel.class);
     private final FileListModel model;
     private final JTable table;
+    private final JLabel storageLabel;
     private final String panelName;
+    private final ActionManager actionManager;
+    private final MainFrame mainFrame;
     private final JTextField currentPathField;
 
 
-    public FileListPanel(String panelName, IconLoader iconLoader, ActionManager actionManager, Storage initialStorage) throws IOException {
+    public FileListPanel(String panelName, IconLoader iconLoader, ActionManager actionManager, Storage initialStorage, MainFrame mainFrame) throws IOException {
         this.panelName = panelName;
+        this.actionManager = actionManager;
+        this.mainFrame = mainFrame;
         this.model = new FileListModel(iconLoader, initialStorage);
+
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         table = createTable();
-        BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
-        setLayout(layout);
-        registerActions(actionManager);
+
         currentPathField = new JTextField();
 
         currentPathField.setMaximumSize(
                 new Dimension(Integer.MAX_VALUE, currentPathField.getPreferredSize().height));
+        storageLabel = new JLabel(initialStorage.getName());
+        this.add(storageLabel);
         this.add(currentPathField);
 
         currentPathField.addActionListener(l -> {
@@ -44,6 +52,10 @@ public class FileListPanel extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout());
         panel.add(new JScrollPane(table));
+
+
+        registerActions(actionManager);
+
         this.add(panel);
     }
 
@@ -80,6 +92,7 @@ public class FileListPanel extends JPanel {
     public void setCurrentStorage(Storage storage) throws IOException {
         log.debug("set {} at panel {}", storage, panelName);
         model.setStorage(storage);
+        storageLabel.setText(storage.getName());
         cd("/");
     }
 
@@ -132,6 +145,7 @@ public class FileListPanel extends JPanel {
 
         @Override
         public void focusGained(FocusEvent e) {
+            mainFrame.makeActive(FileListPanel.this);
             if (lastSelection == -1) {
                 lastSelection = 0;
             }

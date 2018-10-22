@@ -23,7 +23,7 @@ public class ChooseStorageDialog extends JDialog {
     public ChooseStorageDialog(StorageManager storageManager, MainFrame mainFrame) {
         super(mainFrame, true);
         this.storageManager = storageManager;
-        jList = new JList<>(storageManager.getAllAvailableStorages().toArray(new Storage[0]));
+        jList = new JList<>(storageManager.getAllAvailableStorages());
 
 
         hostField = new JTextField();
@@ -37,6 +37,7 @@ public class ChooseStorageDialog extends JDialog {
         jtp.addTab("new FTP", initFtpConnectionPanel());
         add(jtp);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setMinimumSize(new Dimension(400, 400));
     }
 
     private JPanel initChoosePanel() {
@@ -129,6 +130,7 @@ public class ChooseStorageDialog extends JDialog {
         pack();
         return chosenStorage;
     }
+
 
     private static class StorageListRenderer extends DefaultListCellRenderer {
         @Override

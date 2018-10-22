@@ -13,7 +13,6 @@ public class SwitchAction extends FileManagerAction {
 
     @Override
     protected void doAction(ActionEvent e) throws IOException {
-        System.out.println("focus changed");
         context.getMainFrame().switchActivePanels();
     }
 

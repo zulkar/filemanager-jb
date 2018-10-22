@@ -14,26 +14,27 @@ public class MainFrame extends JFrame {
     private FileListPanel rightPanel;
 
     private final IconLoader iconLoader = new IconLoader();
-    private boolean leftActive = false;
+    private FileListPanel activePanel;
 
     public MainFrame() {
         super("FileManager");
     }
 
     public void init(Storage initialLeft, Storage initialRight, ActionManager actionManager) throws IOException {
-        leftPanel = new FileListPanel("Left", iconLoader, actionManager, initialLeft);
-        rightPanel = new FileListPanel("Right", iconLoader, actionManager, initialRight);
+        leftPanel = new FileListPanel("Left", iconLoader, actionManager, initialLeft, this);
+        rightPanel = new FileListPanel("Right", iconLoader, actionManager, initialRight, this);
         leftPanel.cd("/home/alexander/Downloads/test.zip/test/test1.zip");
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 leftPanel, rightPanel);
         splitPane.setResizeWeight(0.5);
         add(splitPane, BorderLayout.CENTER);
         setFocusTraversalKeysEnabled(false);
-        switchActivePanels();
+        setMinimumSize(new Dimension(400, 400));
         this.pack();
         this.setLocationByPlatform(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
+        leftPanel.makeActive();
     }
 
 
@@ -44,28 +45,29 @@ public class MainFrame extends JFrame {
     public FileListPanel getRightPanel() {
         return rightPanel;
     }
-    public FileListPanel getActivePanel() {
-        return leftActive ? leftPanel : rightPanel;
-    }
 
-    public FileListPanel getNonActivePanel() {
-        return leftActive ? rightPanel : leftPanel;
+    public FileListPanel getActivePanel() {
+        return activePanel;
     }
 
     public void switchActivePanels() {
-        leftActive = !leftActive;
-        if (leftActive) {
-            System.out.println("left active");
-            leftPanel.makeActive();
+        if (rightPanel == activePanel) {
+            activePanel = leftPanel;
+        } else if (leftPanel == activePanel) {
+            activePanel = rightPanel;
         } else {
-            System.out.println("right active");
-            rightPanel.makeActive();
+            throw new IllegalStateException("Cannot find active panel!");
         }
+        activePanel.makeActive();
 
 
     }
 
     public void setStatus(String status) {
 
+    }
+
+    public void makeActive(FileListPanel fileListPanel) {
+        activePanel = fileListPanel;
     }
 }

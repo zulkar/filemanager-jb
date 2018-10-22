@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StorageManager {
 
@@ -26,8 +28,8 @@ public class StorageManager {
         storageMap = new HashMap<>();
     }
 
-    public List<Storage> getAllAvailableStorages() {
-        return Collections.unmodifiableList(storages);
+    public Storage[] getAllAvailableStorages() {
+        return Stream.concat(storages.stream(), storageMap.values().stream()).collect(Collectors.toList()).toArray(new Storage[0]);
     }
 
     public Storage createFtpStorage(FtpParameters parameters) {

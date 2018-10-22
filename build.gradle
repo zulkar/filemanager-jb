@@ -23,7 +23,7 @@ subprojects {
     }
 
     dependencies {
-        compile group: 'com.google.guava', name: 'guava', version: '26.0-jre'
+
         testCompile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
         testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
         testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.23.0'

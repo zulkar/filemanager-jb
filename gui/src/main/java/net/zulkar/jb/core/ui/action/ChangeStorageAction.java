@@ -11,7 +11,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.util.List;
 import java.util.function.Function;
 
 public class ChangeStorageAction extends FileManagerAction {
@@ -26,7 +25,7 @@ public class ChangeStorageAction extends FileManagerAction {
 
     @Override
     protected void doAction(ActionEvent e) throws IOException {
-        List<Storage> storages = context.getStorageManager().getAllAvailableStorages();
+
 
         ChooseStorageDialog dialog = new ChooseStorageDialog(context.getStorageManager(), context.getMainFrame());
         Storage storage = dialog.setChosenStorage();
