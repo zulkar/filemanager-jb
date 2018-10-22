@@ -37,7 +37,7 @@ public class FileListPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         table = createTable();
 
-        currentPathField = new JTextField();
+        currentPathField = new JTextField(model.getCurrent().getAbsolutePath());
 
         currentPathField.setMaximumSize(
                 new Dimension(Integer.MAX_VALUE, currentPathField.getPreferredSize().height));
@@ -78,6 +78,8 @@ public class FileListPanel extends JPanel {
             table.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(entry.getKey(), entry.getValue());
             table.getActionMap().put(entry.getValue(), actionManager.getActionMap().get(entry.getValue()));
         }
+
+        table.addMouseListener(actionManager.getMouseListener());
     }
 
     private void disableDefaultActions() {

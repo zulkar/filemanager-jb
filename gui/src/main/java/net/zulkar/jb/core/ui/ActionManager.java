@@ -6,6 +6,7 @@ import net.zulkar.jb.core.UiContext;
 import net.zulkar.jb.core.ui.action.FileManagerAction;
 
 import javax.swing.*;
+import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ import static com.typesafe.config.ConfigValueType.STRING;
 
 public class ActionManager {
 
-    private Config config;
+    private final Config config;
     private final Map<KeyStroke, String> inputMap;
     private final Map<String, FileManagerAction> actionMap;
 
@@ -30,7 +31,7 @@ public class ActionManager {
             actionMap.put(actionId, action);
         }
 
-        for (Map.Entry<String, ConfigValue> entry : config.entrySet()) {
+        for (Map.Entry<String, ConfigValue> entry : config.getConfig("keymap").entrySet()) {
             if (entry.getValue().valueType() != STRING) {
                 throw new IllegalStateException("Bad config format: Look into documentation, but no documentation still. Look into code");
             }
@@ -56,5 +57,9 @@ public class ActionManager {
 
     private KeyStroke getKeyStroke(String id) {
         return KeyStroke.getKeyStroke(id);
+    }
+
+    public MouseListener getMouseListener() {
+        return new FileManagerMouseAction(actionMap.get(config.getString("mouseсlick")));
     }
 }

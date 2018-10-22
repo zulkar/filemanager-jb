@@ -17,6 +17,7 @@ import static java.time.format.FormatStyle.SHORT;
 
 public class FileListModel extends AbstractTableModel {
 
+    private static final String[] HEADERS = {"", "Name", "Size", "Modified"};
     private Storage storage;
     private IconLoader loader;
     private FileEntity[] data;
@@ -27,11 +28,11 @@ public class FileListModel extends AbstractTableModel {
     public FileListModel(IconLoader loader, Storage storage) throws IOException {
         this.loader = loader;
         setStorage(storage);
+        setPath("/");
     }
 
     public final void setStorage(Storage storage) throws IOException {
         this.storage = storage;
-        setPath("/");
     }
 
 
@@ -97,6 +98,11 @@ public class FileListModel extends AbstractTableModel {
         }
     }
 
+    @Override
+    public String getColumnName(int col) {
+        return HEADERS[col];
+    }
+
     private String toName(FileEntity entity, int rowIndex) throws IOException {
         if (parent != null && rowIndex == 0) {
             return "..";
@@ -140,5 +146,9 @@ public class FileListModel extends AbstractTableModel {
         }
         return data[selectedRow];
 
+    }
+
+    public FileEntity getCurrent() {
+        return current;
     }
 }

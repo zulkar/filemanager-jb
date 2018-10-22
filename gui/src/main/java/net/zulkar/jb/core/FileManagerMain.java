@@ -22,7 +22,7 @@ public class FileManagerMain extends JFrame {
                 LocalStorage storage = new LocalStorage(new ZipHandler(), new File("/"));
                 try {
                     MainFrame frame = new MainFrame();
-                    ActionManager actionManager = new ActionManager(ConfigFactory.load("application.conf").getConfig("keymap"));
+                    ActionManager actionManager = new ActionManager(ConfigFactory.load("application.conf"));
 
                     actionManager.init(new UiContext(frame),
                             new OpenAction.Factory(),
