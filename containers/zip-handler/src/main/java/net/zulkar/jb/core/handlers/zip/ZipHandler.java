@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import net.zulkar.jb.core.ContainerHandler;
 import net.zulkar.jb.core.SystemUtils;
 import net.zulkar.jb.core.domain.FileEntity;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class ZipHandler implements ContainerHandler {
 
     @Override
     public boolean maySupport(FileEntity file) {
-        return SUPPORTED_EXTENSIONS.contains(file.getExtension().toLowerCase());
+        return SUPPORTED_EXTENSIONS.contains(StringUtils.lowerCase(file.getExtension()));
     }
 
     @Override
