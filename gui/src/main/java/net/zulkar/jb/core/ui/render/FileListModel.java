@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 import static java.time.format.FormatStyle.SHORT;
@@ -35,9 +36,19 @@ public class FileListModel extends AbstractTableModel {
 
 
     public void setPath(String path) throws IOException {
-        current = storage.resolve(path);
-        parent = current.getParent();
-        data = current.ls().toArray(new FileEntity[0]);
+        FileEntity newCurrent = storage.resolve(path);
+
+        if (newCurrent != null) {
+            List<FileEntity> newData = newCurrent.ls();
+            if (newData != null) {
+                parent = newCurrent.getParent();
+                data = newData.toArray(new FileEntity[0]);
+                current = newCurrent;
+                return;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Cannot cd into %s", path));
+
     }
 
     @Override
