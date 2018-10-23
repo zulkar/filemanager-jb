@@ -2,10 +2,10 @@ package net.zulkar.jb.core.ui;
 
 import net.zulkar.jb.core.ui.action.FileManagerAction;
 
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-public class FileManagerMouseAction implements MouseListener {
+public class FileManagerMouseAction extends MouseAdapter {
     private FileManagerAction onclick;
 
     public FileManagerMouseAction(FileManagerAction onclick) {
@@ -17,25 +17,5 @@ public class FileManagerMouseAction implements MouseListener {
         if (e.getClickCount() == 2) {
             onclick.actionPerformed(null);
         }
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
     }
 }

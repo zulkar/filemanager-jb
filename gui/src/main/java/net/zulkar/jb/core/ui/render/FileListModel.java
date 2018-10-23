@@ -36,7 +36,7 @@ public class FileListModel extends AbstractTableModel {
         this.loader = loader;
         setStorage(storage);
         sortComparator = dirFirst().thenComparing(nameIgnoreCase());
-        setPath(storage.getRootEntity().getAbsolutePath());
+        changeCurrent(storage.getRootEntity());
     }
 
     public final void setStorage(Storage storage) throws IOException {
@@ -46,19 +46,25 @@ public class FileListModel extends AbstractTableModel {
 
     public boolean setPath(String path) throws IOException {
         FileEntity newCurrent = storage.resolve(path);
-        if (newCurrent != null) {
-            List<FileEntity> newData = newCurrent.ls();
-            if (newData != null) {
-                log.debug("setting path to {}", path);
-                parent = newCurrent.getParent();
-                data = newData.toArray(new FileEntity[0]);
-                Arrays.sort(data, sortComparator);
-                current = newCurrent;
-                return true;
-            }
-
+        if (newCurrent == null) {
+            log.debug("cannot cd to {}", path);
+            return false;
         }
-        log.debug("cannot cd to {}", path);
+        return changeCurrent(newCurrent);
+    }
+
+    private boolean changeCurrent(FileEntity newCurrent) throws IOException {
+        List<FileEntity> newData = newCurrent.ls();
+        if (newData != null) {
+            log.debug("setting path to {}", newCurrent.getAbsolutePath());
+            parent = newCurrent.getParent();
+            data = newData.toArray(new FileEntity[0]);
+            Arrays.sort(data, sortComparator);
+            current = newCurrent;
+            return true;
+        }
+
+
         return false;
     }
 
