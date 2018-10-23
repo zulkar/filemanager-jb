@@ -11,6 +11,8 @@ import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.text.NumberFormat;
 
@@ -50,6 +52,7 @@ public class ChooseStorageDialog extends JDialog {
 
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         jList.setCellRenderer(new StorageListRenderer());
+        registerMouseListener();
         choosePanel.add(new JScrollPane(jList));
         JPanel buttonPanel = new JPanel();
         JButton ok = new JButton("Ok");
@@ -60,6 +63,18 @@ public class ChooseStorageDialog extends JDialog {
         buttonPanel.add(cancel);
         choosePanel.add(buttonPanel);
         return choosePanel;
+    }
+
+    private void registerMouseListener() {
+        jList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    setChosenStorage(null);
+                }
+
+            }
+        });
     }
 
     private void setChosenStorage(ActionEvent actionEvent) {
