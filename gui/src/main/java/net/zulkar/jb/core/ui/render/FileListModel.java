@@ -36,7 +36,7 @@ public class FileListModel extends AbstractTableModel {
         this.loader = loader;
         setStorage(storage);
         sortComparator = dirFirst().thenComparing(nameIgnoreCase());
-        setPath("/");
+        setPath(storage.getRootEntity().getAbsolutePath());
     }
 
     public final void setStorage(Storage storage) throws IOException {

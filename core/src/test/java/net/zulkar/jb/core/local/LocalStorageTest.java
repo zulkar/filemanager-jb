@@ -23,14 +23,15 @@ class LocalStorageTest {
     @Mock
     private ContainerHandler containerHandler;
     private File resourceDir;
+    private File rootDir;
     private String resourcePath;
     private LocalStorage localStorage;
 
     @BeforeEach
     public void before() throws IOException {
         resourceDir = ResourcePathFinder.getResourceFile("core.resource.txt").getParentFile();
-        resourcePath = FilenameUtils.normalizeNoEndSeparator(resourceDir.getCanonicalPath(), true);
-        localStorage = new LocalStorage(containerHandler, new File("/"));
+        resourcePath =  LocalFileSystemFactory.getLocalFileSystem().pathToEntityModel(resourceDir.getCanonicalPath());
+        localStorage = new LocalStorage(containerHandler, ResourcePathFinder.getRootDir("core.resource.txt"));
     }
 
     @Test
@@ -56,7 +57,7 @@ class LocalStorageTest {
 
     private void doTestResolveFile(String path) throws IOException {
         String absolutePath = resourcePath + path;
-        assertEquals(FilenameUtils.separatorsToUnix(new File(absolutePath).getCanonicalPath()),
+        assertEquals( LocalFileSystemFactory.getLocalFileSystem().pathToEntityModel(new File(absolutePath).getCanonicalPath()),
                 localStorage.resolve(absolutePath).getAbsolutePath());
     }
 }

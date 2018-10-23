@@ -48,7 +48,8 @@ public class SystemIconLoader implements AutoCloseable, IconLoader {
             if (StringUtils.isEmpty(extension)) {
                 return null;
             }
-            return iconCache.get(extension, () -> loadIcon(extension));
+            String cacheKey = extension.toLowerCase();
+            return iconCache.get(cacheKey, () -> loadIcon(cacheKey));
         } catch (ExecutionException e) {
             log.error(e);
             return null;

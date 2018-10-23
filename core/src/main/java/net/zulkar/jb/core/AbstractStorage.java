@@ -43,7 +43,7 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
     }
 
     protected FileEntity resolveRealEntity(String path) throws IOException {
-        FE file = tryGetRealEntity(path);
+        FE file = tryGetNonContainerEntity(path);
         if (file != null) {
             log.debug("{}: Resolving path {} to real fileEntity", name, path);
             return file;
@@ -57,9 +57,10 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
 
     protected abstract FE getFrom(FileEntity current, String pathElement) throws IOException;
 
-    protected abstract FE tryGetRealEntity(String path) throws IOException;
+    protected abstract FE tryGetNonContainerEntity(String path) throws IOException;
 
-    protected abstract FE getRootEntity();
+    @Override
+    public abstract FE getRootEntity();
 
     protected FileEntity resolveInnerPath(FileEntity entity, String fullPath, String internalPath) throws IOException {
         return descend(fullPath, internalPath, entity,

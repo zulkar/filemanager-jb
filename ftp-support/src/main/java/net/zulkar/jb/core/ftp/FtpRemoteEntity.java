@@ -72,4 +72,12 @@ public class FtpRemoteEntity implements FileEntity {
         }
         return file.getTimestamp().toInstant();
     }
+
+    @Override
+    public String toString() {
+        return "FtpRemoteEntity{" +
+                "ftpStorage=" + ftpStorage +
+                ", fullPath='" + fullPath + '\'' +
+                '}';
+    }
 }

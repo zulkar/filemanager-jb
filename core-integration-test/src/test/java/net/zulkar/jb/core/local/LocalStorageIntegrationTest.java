@@ -16,15 +16,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class LocalStorageIntegrationTest {
 
     private File resourceDir;
-    private String simpleFilePath;
     private String storagetestPath;
-    private LocalStorage storage = new LocalStorage(new ZipHandler(), new File("/"));
+    private LocalStorage storage;
 
     @BeforeEach
     public void before() {
         resourceDir = ResourcePathFinder.getResourceFile("storagetest.zip").getParentFile();
-        simpleFilePath = FilenameUtils.normalizeNoEndSeparator(new File(resourceDir, "SimpleFile.txt").getAbsolutePath());
-        storagetestPath = FilenameUtils.normalizeNoEndSeparator(new File(resourceDir, "storagetest.zip").getAbsolutePath());
+        storagetestPath = LocalFileSystemFactory.getLocalFileSystem().pathToEntityModel(new File(resourceDir, "storagetest.zip").getAbsolutePath());
+        storage = new LocalStorage(new ZipHandler(), ResourcePathFinder.getRootDir("storagetest.zip"));
     }
 
 

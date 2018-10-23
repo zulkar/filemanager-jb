@@ -26,7 +26,7 @@ public class FileManagerMain extends JFrame {
                 StorageManager storageManager = new StorageManager();
                 Storage initialStorage = getInitialStorage(storageManager);
                 MainFrame frame = new MainFrame(iconLoader);
-                ActionManager actionManager = new ActionManager(ConfigFactory.load("application.conf"));
+                ActionManager actionManager = new ActionManager(ConfigFactory.load());
 
                 actionManager.init(new UiContext(frame, storageManager),
                         new OpenAction.Factory(),

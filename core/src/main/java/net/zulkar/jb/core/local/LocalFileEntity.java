@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
  * file entity, located either on local disk, zip or remote dir
  */
 public class LocalFileEntity implements FileEntity {
-
-
     private File file;
     private LocalStorage storage;
 
@@ -32,7 +30,7 @@ public class LocalFileEntity implements FileEntity {
 
     @Override
     public String getAbsolutePath() {
-        return FilenameUtils.normalizeNoEndSeparator(file.getAbsolutePath(), true);
+        return LocalFileSystemFactory.getLocalFileSystem().pathToEntityModel(file.getAbsolutePath());
     }
 
     @Override

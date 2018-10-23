@@ -5,6 +5,7 @@ import net.zulkar.jb.core.ResourcePathFinder;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.local.LocalFileEntity;
 import net.zulkar.jb.core.local.LocalStorage;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,17 +17,20 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class ZipHandlerTest {
 
     private File resourceZipFile;
+    private File rootFile;
     private FileEntity resourceZipFileEntity;
     private ZipHandler zipHandler = new ZipHandler();
 
     @BeforeEach
     public void before() {
         resourceZipFile = ResourcePathFinder.getResourceFile("resources.zip");
+        rootFile = ResourcePathFinder.getRootDir("resources.zip");
         resourceZipFileEntity = new LocalFileEntity(resourceZipFile, mock(LocalStorage.class));
     }
 
@@ -35,7 +39,7 @@ class ZipHandlerTest {
         FileEntity dir1 = resolve("Dir1");
         assertEquals("Dir1", dir1.getName());
         assertTrue(dir1.isDir());
-        assertEquals(resourceZipFile.getAbsolutePath() + "/Dir1", dir1.getAbsolutePath());
+        assertFileNameEquals(resourceZipFile.getAbsolutePath() + "/Dir1", dir1.getAbsolutePath());
         FileEntityTestUtils.checkFiles(new String[]{"Zdir3", "empty.zip", "FileA.txt", "FileB"}, dir1.ls());
     }
 
@@ -64,7 +68,7 @@ class ZipHandlerTest {
         assertEquals("FileA.txt", file.getName());
         assertEquals("txt", file.getExtension());
         assertFalse(file.isDir());
-        assertEquals(resourceZipFile.getAbsolutePath() + "/Dir1/FileA.txt", file.getAbsolutePath());
+        assertFileNameEquals(resourceZipFile.getAbsolutePath() + "/Dir1/FileA.txt", file.getAbsolutePath());
         assertNull(file.ls());
         assertEquals("Dir1/FileA content\n", IOUtils.toString(file.openInputStream()));
     }
@@ -102,6 +106,11 @@ class ZipHandlerTest {
         FileEntity entity = mock(FileEntity.class);
         zipHandler.createFrom(entity);
         verify(entity, never()).openInputStream();
+    }
+
+    private void assertFileNameEquals(String expectedLocalFileName, String actual) {
+        String expectedEntityName = "/" +  FilenameUtils.normalizeNoEndSeparator(StringUtils.removeStart(expectedLocalFileName, rootFile.getAbsolutePath()), true);
+        assertEquals(expectedEntityName, actual);
     }
 
 

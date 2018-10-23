@@ -115,7 +115,7 @@ class FtpStorageTest {
 
         FileEntity entity = ftpStorage.resolve(path);
         assertTrue(entity.isDir());
-        assertEquals(FilenameUtils.normalizeNoEndSeparator(path), entity.getAbsolutePath());
+        assertEquals(FilenameUtils.normalizeNoEndSeparator(path, true), entity.getAbsolutePath());
         FileEntityTestUtils.checkFiles(expected, entity.ls());
         return entity;
     }

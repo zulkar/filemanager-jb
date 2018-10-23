@@ -7,8 +7,16 @@ task prepareTestFiles(type: Zip) {
     destinationDir = file("${project.buildDir}/resources/test")
 }
 
+task prepareTestFilesForIdea(type: Zip) {
+    from("${project.projectDir}/src/test/resources")
+    archiveName = 'resources.zip'
+    destinationDir = file("${project.buildDir}/../out/test/resources")
+}
+
+
+
 afterEvaluate {
-    test.dependsOn(prepareTestFiles)
+    test.dependsOn(prepareTestFiles, prepareTestFilesForIdea)
 }
 
 dependencies {

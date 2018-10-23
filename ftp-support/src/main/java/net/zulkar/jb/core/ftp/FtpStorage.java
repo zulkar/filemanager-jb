@@ -57,21 +57,21 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
         if (ftpFile == null) {
             return null;
         }
-        return new FtpRemoteEntity(ftpFile, this, FilenameUtils.normalizeNoEndSeparator(current.getAbsolutePath()) + "/" + pathElement);
+        return new FtpRemoteEntity(ftpFile, this, FilenameUtils.normalizeNoEndSeparator(current.getAbsolutePath(), true) + "/" + pathElement);
     }
 
     @Override
-    protected FtpRemoteEntity tryGetRealEntity(String path) throws IOException {
+    protected FtpRemoteEntity tryGetNonContainerEntity(String path) throws IOException {
         String parent = FilenameUtils.getFullPathNoEndSeparator(path);
         FTPFile ftpFile = find(ftpClient.listFiles(parent), FilenameUtils.getName(path));
         if (ftpFile == null) {
             return null;
         }
-        return new FtpRemoteEntity(ftpFile, this, FilenameUtils.normalizeNoEndSeparator(path));
+        return new FtpRemoteEntity(ftpFile, this, FilenameUtils.normalizeNoEndSeparator(path, true));
     }
 
     @Override
-    protected FtpRemoteEntity getRootEntity() {
+    public FtpRemoteEntity getRootEntity() {
         FTPFile root = new FTPFile();
         root.setType(FTPFile.DIRECTORY_TYPE);
         root.setSize(-1);
