@@ -8,10 +8,12 @@ import java.util.function.Predicate;
 public class TreeNode<T> {
 
     private T t;
-    private String name;
+    private final String name;
     private List<TreeNode<T>> children;
+    private final TreeNode<T> parent;
 
-    public TreeNode(String name) {
+    public TreeNode(String name, TreeNode<T> parent) {
+        this.parent = parent;
         this.t = t;
         this.name = name;
     }
@@ -33,6 +35,10 @@ public class TreeNode<T> {
             children = new ArrayList<>();
         }
         children.add(child);
+    }
+
+    public TreeNode<T> getParent(){
+        return parent;
     }
 
     public List<TreeNode<T>> getChildren() {

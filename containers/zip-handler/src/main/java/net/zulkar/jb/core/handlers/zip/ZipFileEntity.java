@@ -5,6 +5,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -77,7 +78,12 @@ public class ZipFileEntity implements FileEntity {
 
     @Override
     public Instant getModificationTime() {
-        return zipEntry.getLastModifiedTime().toInstant();
+        FileTime lastModifiedTime = zipEntry.getLastModifiedTime();
+        if (lastModifiedTime != null) {
+            return zipEntry.getLastModifiedTime().toInstant();
+        }
+        return Instant.EPOCH;
+
     }
 
     @Override

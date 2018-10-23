@@ -1,5 +1,6 @@
 package net.zulkar.jb.core.handlers.zip;
 
+import com.google.common.collect.Lists;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.domain.ProxyFileEntity;
 import net.zulkar.jb.core.handlers.zip.tree.TreeNode;
@@ -8,17 +9,14 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 class LazyZipArchiveFileEntity extends ProxyFileEntity {
     private ZipHandler zipHandler;
 
-    private TreeNode<ZipEntry> root = new TreeNode<>(null);
+    private TreeNode<ZipEntry> root = new TreeNode<>(null, null);
     private boolean errorOnInit = false;
     private boolean initialized = false;
 
@@ -72,9 +70,25 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
             }
 
             if (node.get() == null) {
-                throw new IllegalStateException(String.format("zip archive at %s have incomplete entities list", getAbsolutePath()));
+                if (node.getChildren() == null) {
+                    throw new IllegalStateException(String.format("zip archive at %s have incomplete entities list %s", getAbsolutePath(), calcNodePath(node)));
+                }
+                fillNodeForMissedEntities(node);
             }
         }
+    }
+
+    private void fillNodeForMissedEntities(TreeNode<ZipEntry> node) {
+        node.set(new ZipEntry(calcNodePath(node)));
+    }
+
+    private String calcNodePath(TreeNode<ZipEntry> node) {
+        List<String> paths= new ArrayList<>();
+        while (node != root && node!=null) {
+            paths.add(node.getName());
+            node = node.getParent();
+        }
+        return StringUtils.join(Lists.reverse(paths), "/") + "/";
     }
 
     FileEntity getParent(String path) {
@@ -151,7 +165,7 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
     private TreeNode<ZipEntry> getOrCreateChildNode(String pathElement, TreeNode<ZipEntry> parent) {
         TreeNode<ZipEntry> node = parent.find(n -> pathElement.equals(n.getName())); //todo - filenames case
         if (node == null) {
-            node = new TreeNode<>(pathElement);
+            node = new TreeNode<>(pathElement, parent);
             parent.addWithoutDupCheck(node);
         }
         return node;

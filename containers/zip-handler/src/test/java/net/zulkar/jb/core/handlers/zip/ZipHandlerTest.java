@@ -8,6 +8,7 @@ import net.zulkar.jb.core.local.LocalStorage;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class ZipHandlerTest {
@@ -46,8 +46,7 @@ class ZipHandlerTest {
     @Test
     public void shouldReadListOfTopLevelZipDir() throws IOException {
         FileEntity zipEntity = zipHandler.createFrom(resourceZipFileEntity);
-        zipEntity.ls();
-        FileEntityTestUtils.checkFiles(new String[]{"Dir1", "FileA"}, zipEntity.ls());
+        FileEntityTestUtils.checkFiles(new String[]{"Dir1", "FileA", "test-no-entry.zip"}, zipEntity.ls());
     }
 
     @Test
@@ -108,8 +107,17 @@ class ZipHandlerTest {
         verify(entity, never()).openInputStream();
     }
 
+    @Test
+    public void shouldReadWinrarFileWithIncompleteEntrySet() throws IOException {
+        File noEntryFile = ResourcePathFinder.getResourceFile("test-no-entry.zip");
+        FileEntity zipEntity = zipHandler.createFrom(new LocalFileEntity(noEntryFile, mock(LocalStorage.class)));
+        FileEntity dir = FileEntityTestUtils.find("parent", zipEntity.ls());
+        FileEntity file = FileEntityTestUtils.find("test.txt", dir.ls());
+        Assertions.assertNotNull(file);
+    }
+
     private void assertFileNameEquals(String expectedLocalFileName, String actual) {
-        String expectedEntityName = "/" +  FilenameUtils.normalizeNoEndSeparator(StringUtils.removeStart(expectedLocalFileName, rootFile.getAbsolutePath()), true);
+        String expectedEntityName = "/" + FilenameUtils.normalizeNoEndSeparator(StringUtils.removeStart(expectedLocalFileName, rootFile.getAbsolutePath()), true);
         assertEquals(expectedEntityName, actual);
     }
 
