@@ -3,10 +3,7 @@ package net.zulkar.jb.core.ui;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.zulkar.jb.core.UiContext;
-import net.zulkar.jb.core.ui.action.ChangeStorageAction;
-import net.zulkar.jb.core.ui.action.FileManagerAction;
-import net.zulkar.jb.core.ui.action.OpenAction;
-import net.zulkar.jb.core.ui.action.SwitchAction;
+import net.zulkar.jb.core.ui.action.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -35,13 +32,15 @@ class ActionManagerTest {
                 new OpenAction.Factory(),
                 new SwitchAction.Factory(),
                 new ChangeStorageAction.FactoryLeftPanel(),
-                new ChangeStorageAction.FactoryRightPanel());
+                new ChangeStorageAction.FactoryRightPanel(),
+                new ReloadAction.Factory());
 
         checkActions(actionManager, new HashMap<Integer, Class<? extends FileManagerAction>>() {{
             put(KeyEvent.VK_ENTER, OpenAction.class);
             put(KeyEvent.VK_TAB, SwitchAction.class);
             put(KeyEvent.VK_F1, ChangeStorageAction.class);
             put(KeyEvent.VK_F2, ChangeStorageAction.class);
+            put(KeyEvent.VK_R, ReloadAction.class);
         }});
     }
 

@@ -10,4 +10,5 @@ public interface Storage extends AutoCloseable {
     FileEntity resolve(String path) throws IOException;
     String getName();
     FileEntity getRootEntity();
+    boolean needCache();
 }
