@@ -6,10 +6,7 @@ import net.zulkar.jb.core.domain.FileEntity;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPClientConfig;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
+import org.apache.commons.net.ftp.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,6 +44,7 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
         if (!ftpClient.login(ftpParameters.getUser(), ftpParameters.getPassword())) {
             throw new IOException(String.format("Cannot connect into %s as %s", ftpParameters.getHost(), ftpParameters.getUser()));
         }
+        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         log.info("Logged into to {}", ftpParameters.getHost());
     }
 
@@ -57,7 +55,7 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
         if (ftpFile == null) {
             return null;
         }
-        return new FtpRemoteEntity(ftpFile, this, FilenameUtils.normalizeNoEndSeparator(current.getAbsolutePath(), true) + "/" + pathElement);
+        return new FtpRemoteEntity(ftpFile, this, FilenameUtils.normalizeNoEndSeparator(FilenameUtils.concat(current.getAbsolutePath(), pathElement), true));
     }
 
     @Override
@@ -137,9 +135,9 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
     private void cacheInto(OutputStream os, String fullPath) throws IOException {
         try (InputStream is = ftpClient.retrieveFileStream(fullPath)) {
             IOUtils.copy(is, os);
-            if (!ftpClient.completePendingCommand()) {
-                throw new IOException(String.format("File trasfer %s failed", fullPath));
-            }
+        }
+        if (!ftpClient.completePendingCommand()) {
+            throw new IOException(String.format("File trasfer %s failed", fullPath));
         }
     }
 

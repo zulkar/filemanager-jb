@@ -108,3 +108,4 @@ hs_err_pid*
 !/containers/zip-handler/src/test/resources/Dir1/Zdir3/Zdir3.zip
 !/core-integration-test/src/test/resources/storagetest.zip
 !/containers/zip-handler/src/test/resources/test-no-entry.zip
+!/ftp-support/src/test/resources/zip.zip

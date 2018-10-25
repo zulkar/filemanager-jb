@@ -3,5 +3,5 @@ dependencies {
     compile group: 'commons-net', name: 'commons-net', version: '3.6'
     testCompile group: 'org.mockftpserver', name: 'MockFtpServer', version: '2.7.1'
     testCompile project(':core').sourceSets.test.output
-
+    testCompile project(':containers:zip-handler')
 }

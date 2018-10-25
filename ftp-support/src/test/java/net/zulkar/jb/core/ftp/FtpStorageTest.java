@@ -3,6 +3,7 @@ package net.zulkar.jb.core.ftp;
 import net.zulkar.jb.core.ContainerHandler;
 import net.zulkar.jb.core.FileEntityTestUtils;
 import net.zulkar.jb.core.domain.FileEntity;
+import net.zulkar.jb.core.handlers.zip.ZipHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -14,7 +15,6 @@ import org.mockftpserver.fake.filesystem.DirectoryEntry;
 import org.mockftpserver.fake.filesystem.FileEntry;
 import org.mockftpserver.fake.filesystem.FileSystem;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
@@ -26,8 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class FtpStorageTest {
     private static FakeFtpServer server;
-    @Mock
-    private ContainerHandler containerHandler;
+    private ContainerHandler containerHandler = new ZipHandler();
 
     private FtpStorage ftpStorage;
 
@@ -45,13 +44,16 @@ class FtpStorageTest {
 
     }
 
-    private static FileSystem createFileSystem() {
+    private static FileSystem createFileSystem() throws IOException {
         UnixFakeFileSystem system = new UnixFakeFileSystem();
         system.setCreateParentDirectoriesAutomatically(true);
         system.add(new FileEntry("/home/user/dir1/file1.txt", "some data file1"));
         system.add(new FileEntry("/home/user/dir1/file2.txt", "some data file2"));
         system.add(new FileEntry("/home/user/toplevelUserFile.txt", "toplevelUserFile"));
         system.add(new FileEntry("/toplevelRootFile.txt", "toplevelRootFile"));
+        FileEntry zipAcrhive = new FileEntry("/somedir/zip.zip");
+        zipAcrhive.setContents(IOUtils.toByteArray(FtpStorageTest.class.getClassLoader().getResourceAsStream("zip.zip")));
+        system.add(zipAcrhive);
         system.add(new DirectoryEntry("/home/user/emptyDir"));
         return system;
     }
@@ -70,7 +72,7 @@ class FtpStorageTest {
 
     @Test
     public void shouldLsRootDirFiles() throws IOException {
-        FileEntity entity = doTestLs("/", new String[]{"home", "toplevelRootFile.txt"});
+        FileEntity entity = doTestLs("/", new String[]{"home", "toplevelRootFile.txt", "somedir"});
         assertNull(entity.getParent());
     }
 
@@ -109,6 +111,11 @@ class FtpStorageTest {
         FileEntity parent = entity.getParent();
         assertTrue(parent.isDir());
         assertEquals("/home/user", parent.getAbsolutePath());
+    }
+
+    @Test
+    public void shouldReadZipArchiveParent() throws IOException {
+        doTestFileFesolve("/somedir/zip.zip/1/File2.txt", "File2 data \n");
     }
 
     private FileEntity doTestLs(String path, String[] expected) throws IOException {
