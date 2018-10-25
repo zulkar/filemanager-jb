@@ -2,19 +2,17 @@ package net.zulkar.jb.core;
 
 import com.typesafe.config.ConfigFactory;
 import net.zulkar.jb.core.domain.Storage;
-import net.zulkar.jb.core.handlers.zip.ZipHandler;
-import net.zulkar.jb.core.local.LocalStorage;
 import net.zulkar.jb.core.ui.ActionManager;
 import net.zulkar.jb.core.ui.MainFrame;
 import net.zulkar.jb.core.ui.action.ChangeStorageAction;
 import net.zulkar.jb.core.ui.action.OpenAction;
+import net.zulkar.jb.core.ui.action.ReloadAction;
 import net.zulkar.jb.core.ui.action.SwitchAction;
 import net.zulkar.jb.core.ui.render.SystemIconLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import java.io.File;
 
 public class FileManagerMain extends JFrame {
     private static final Logger log = LogManager.getLogger(FileManagerMain.class);
@@ -32,7 +30,8 @@ public class FileManagerMain extends JFrame {
                         new OpenAction.Factory(),
                         new SwitchAction.Factory(),
                         new ChangeStorageAction.FactoryLeftPanel(),
-                        new ChangeStorageAction.FactoryRightPanel()
+                        new ChangeStorageAction.FactoryRightPanel(),
+                        new ReloadAction.Factory()
                 );
                 frame.init(initialStorage, initialStorage, actionManager, new CleanTmpRunnable(storageManager, iconLoader));
 
@@ -48,7 +47,7 @@ public class FileManagerMain extends JFrame {
 
     private static Storage getInitialStorage(StorageManager storageManager) {
         Storage[] storages = storageManager.getAllAvailableStorages();
-        if(storages == null || storages.length ==0){
+        if (storages == null || storages.length == 0) {
             throw new IllegalStateException("No storages available!");
         }
         return storages[0];

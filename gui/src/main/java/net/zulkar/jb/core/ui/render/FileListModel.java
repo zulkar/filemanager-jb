@@ -46,11 +46,15 @@ public class FileListModel extends AbstractTableModel {
 
     public boolean setPath(String path) throws IOException {
         FileEntity newCurrent = storage.resolve(path);
-        if (newCurrent == null) {
-            log.debug("cannot cd to {}", path);
+        return setCurrentEntity(newCurrent);
+    }
+
+    public boolean setCurrentEntity(FileEntity result) throws IOException {
+        if (result == null) {
+            log.debug("cannot cd to {}", result);
             return false;
         }
-        return changeCurrent(newCurrent);
+        return changeCurrent(result);
     }
 
     private boolean changeCurrent(FileEntity newCurrent) throws IOException {
@@ -168,4 +172,9 @@ public class FileListModel extends AbstractTableModel {
     public FileEntity getCurrent() {
         return current;
     }
+
+    public Storage getStorage() {
+        return storage;
+    }
+
 }

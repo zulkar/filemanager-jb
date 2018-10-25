@@ -8,15 +8,10 @@ import java.util.List;
 public abstract class ProxyFileEntity implements FileEntity {
     protected FileEntity entity;
 
-    protected ProxyFileEntity(FileEntity entity) {
-        this(entity, false);
-    }
 
-    protected ProxyFileEntity(FileEntity entity, boolean initialized) {
+    protected ProxyFileEntity(FileEntity entity) {
         this.entity = entity;
     }
-
-    protected abstract void init();
 
     @Override
     public String getAbsolutePath() {

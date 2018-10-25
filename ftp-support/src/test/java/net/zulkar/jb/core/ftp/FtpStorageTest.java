@@ -4,7 +4,6 @@ import net.zulkar.jb.core.ContainerHandler;
 import net.zulkar.jb.core.FileEntityTestUtils;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.handlers.zip.ZipHandler;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.*;
@@ -17,7 +16,6 @@ import org.mockftpserver.fake.filesystem.FileSystem;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -38,9 +36,6 @@ class FtpStorageTest {
         server.setServerControlPort(0);
         server.start();
         System.out.println("starting server at " + server.getServerControlPort());
-        for (File cacheDirectory : FtpStorage.getCacheDirectories()) {
-            FileUtils.deleteDirectory(cacheDirectory);
-        }
 
     }
 

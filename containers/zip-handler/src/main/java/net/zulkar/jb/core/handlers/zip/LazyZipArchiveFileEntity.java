@@ -30,8 +30,7 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
         return true;
     }
 
-    @Override
-    protected void init() {
+    private void init() {
         try {
             zipHandler.init(this, entity);
         } catch (IOException e) {
@@ -83,8 +82,8 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
     }
 
     private String calcNodePath(TreeNode<ZipEntry> node) {
-        List<String> paths= new ArrayList<>();
-        while (node != root && node!=null) {
+        List<String> paths = new ArrayList<>();
+        while (node != root && node != null) {
             paths.add(node.getName());
             node = node.getParent();
         }

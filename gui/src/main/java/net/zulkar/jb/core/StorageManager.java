@@ -1,5 +1,6 @@
 package net.zulkar.jb.core;
 
+import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ftp.FtpParameters;
 import net.zulkar.jb.core.ftp.FtpStorage;
@@ -10,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,7 +27,13 @@ public class StorageManager implements AutoCloseable {
     public StorageManager() {
         storages = new ArrayList<>();
         handler = new ZipHandler();
-        Arrays.stream(File.listRoots()).map(lr -> new LocalStorage(handler, lr)).forEach(storages::add);
+        Arrays.stream(File.listRoots()).map(lr -> {
+            try {
+                return new CacheableStorage(new LocalStorage(handler, lr));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }).forEach(storages::add);
         storageMap = new HashMap<>();
     }
 
@@ -40,7 +48,7 @@ public class StorageManager implements AutoCloseable {
             ftpStorage = new FtpStorage(handler, parameters);
             storageMap.put(parameters, ftpStorage);
         }
-        return ftpStorage;
+        return new CacheableStorage(ftpStorage);
 
 
     }

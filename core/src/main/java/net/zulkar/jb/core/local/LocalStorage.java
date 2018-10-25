@@ -49,4 +49,9 @@ public class LocalStorage extends AbstractStorage<LocalFileEntity> {
     public LocalFileEntity getRootEntity() {
         return new LocalFileEntity(fileRoot, this);
     }
+
+    @Override
+    public boolean needCache() {
+        return false;
+    }
 }
