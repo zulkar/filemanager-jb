@@ -56,4 +56,14 @@ public class UiContext {
         return !lockSets.isEmpty();
     }
 
+    public synchronized void stopAndUnlock() {
+        if(!lockSets.isEmpty()) {
+            for (CancellableBackgroundJob<?> job : lockSets) {
+                job.cancelJob();
+                unlockActions(job);
+            }
+            getMainFrame().setStatus("Cancelled");
+        }
+
+    }
 }

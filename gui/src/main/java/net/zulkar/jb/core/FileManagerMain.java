@@ -5,10 +5,7 @@ import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ui.ActionManager;
 import net.zulkar.jb.core.ui.MainFrame;
-import net.zulkar.jb.core.ui.action.ChangeStorageAction;
-import net.zulkar.jb.core.ui.action.OpenAction;
-import net.zulkar.jb.core.ui.action.ReloadAction;
-import net.zulkar.jb.core.ui.action.SwitchAction;
+import net.zulkar.jb.core.ui.action.*;
 import net.zulkar.jb.core.ui.render.SystemIconLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +29,8 @@ public class FileManagerMain extends JFrame {
                         new SwitchAction.Factory(),
                         new ChangeStorageAction.FactoryLeftPanel(),
                         new ChangeStorageAction.FactoryRightPanel(),
-                        new ReloadAction.Factory()
+                        new ReloadAction.Factory(),
+                        new CancelAction.Factory()
                 );
                 frame.init(initialStorage, initialStorage, actionManager, new CleanTmpRunnable(storageManager, iconLoader));
 
