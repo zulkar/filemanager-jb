@@ -1,6 +1,5 @@
 package net.zulkar.jb.core.ui.render;
 
-import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.FileEntity;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +23,6 @@ import static net.zulkar.jb.core.ui.render.FileEntityComparators.nameIgnoreCase;
 public class FileListModel extends AbstractTableModel {
     private static final Logger log = LogManager.getLogger(FileListModel.class);
     private static final String[] HEADERS = {"", "Name", "Size", "Modified"};
-    private CacheableStorage storage;
     private IconLoader loader;
     private FileEntity[] data;
     private FileEntity current;
@@ -32,44 +30,19 @@ public class FileListModel extends AbstractTableModel {
     private final Comparator<FileEntity> sortComparator;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(SHORT).withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault());
 
-    public FileListModel(IconLoader loader, CacheableStorage storage) throws IOException {
+    public FileListModel(IconLoader loader, EntityData entityData) throws IOException {
         this.loader = loader;
-        setStorage(storage);
         sortComparator = dirFirst().thenComparing(nameIgnoreCase());
-        changeCurrent(storage.getRootEntity());
-    }
-
-    public final void setStorage(CacheableStorage storage) throws IOException {
-        this.storage = storage;
+        setCurrentEntity(entityData);
     }
 
 
-    public boolean setPath(String path) throws IOException {
-        FileEntity newCurrent = storage.resolve(path);
-        return setCurrentEntity(newCurrent);
-    }
-
-    public boolean setCurrentEntity(FileEntity result) throws IOException {
-        if (result == null) {
-            log.debug("cannot cd to {}", result);
-            return false;
-        }
-        return changeCurrent(result);
-    }
-
-    private boolean changeCurrent(FileEntity newCurrent) throws IOException {
-        List<FileEntity> newData = storage.ls(newCurrent);
-        if (newData != null) {
-            log.debug("setting path to {}", newCurrent.getAbsolutePath());
-            parent = storage.getParent(newCurrent);
-            data = newData.toArray(new FileEntity[0]);
-            Arrays.sort(data, sortComparator);
-            current = newCurrent;
-            return true;
-        }
-
-
-        return false;
+    public void setCurrentEntity(EntityData entityData) throws IOException {
+        data = entityData.getChildren().toArray(new FileEntity[0]);
+        Arrays.sort(data, sortComparator);
+        this.current = entityData.getCurrent();
+        this.parent = entityData.getParent();
+        this.fireTableDataChanged();
     }
 
     @Override
@@ -139,6 +112,9 @@ public class FileListModel extends AbstractTableModel {
     }
 
     private String toDateColumn(Instant dateTime) {
+        if (dateTime == null) {
+            return "";
+        }
         return formatter.format(dateTime);
     }
 
@@ -156,7 +132,7 @@ public class FileListModel extends AbstractTableModel {
         return hrSize;
     }
 
-    public FileEntity getEntity(int selectedRow) throws IOException {
+    public FileEntity getEntity(int selectedRow) {
         if (parent != null) {
             if (selectedRow == 0) {
                 return parent;
@@ -173,8 +149,28 @@ public class FileListModel extends AbstractTableModel {
         return current;
     }
 
-    public CacheableStorage getStorage() {
-        return storage;
+    public static class EntityData {
+        private final FileEntity current;
+        private final FileEntity parent;
+        private final List<FileEntity> children;
+
+        public EntityData(FileEntity current, FileEntity parent, List<FileEntity> children) {
+            this.current = current;
+            this.parent = parent;
+            this.children = children;
+        }
+
+        public FileEntity getCurrent() {
+            return current;
+        }
+
+        public FileEntity getParent() {
+            return parent;
+        }
+
+        public List<FileEntity> getChildren() {
+            return children;
+        }
     }
 
 }

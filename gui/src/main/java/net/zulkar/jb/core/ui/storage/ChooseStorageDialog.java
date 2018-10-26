@@ -1,7 +1,6 @@
 package net.zulkar.jb.core.ui.storage;
 
 import net.zulkar.jb.core.StorageManager;
-import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ftp.FtpParameters;
 import net.zulkar.jb.core.ui.MainFrame;
@@ -18,7 +17,7 @@ import java.text.NumberFormat;
 
 public class ChooseStorageDialog extends JDialog {
     private static final Logger log = LogManager.getLogger(ChooseStorageDialog.class);
-    private final JList<CacheableStorage> storageJList;
+    private final JList<Storage> storageJList;
     private final StorageManager storageManager;
     private StorageSupplier storageSupplier;
     private final JTextField hostField;
@@ -78,7 +77,7 @@ public class ChooseStorageDialog extends JDialog {
     }
 
     private void choose(ActionEvent actionEvent) {
-        CacheableStorage selectedValue = storageJList.getSelectedValue();
+        Storage selectedValue = storageJList.getSelectedValue();
         storageSupplier = () -> selectedValue;
         this.dispose();
     }

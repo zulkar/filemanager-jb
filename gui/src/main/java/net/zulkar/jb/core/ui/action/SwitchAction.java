@@ -12,7 +12,7 @@ public class SwitchAction extends FileManagerAction {
     }
 
     @Override
-    protected void doAction(ActionEvent e) throws IOException {
+    protected void doAction(ActionEvent e) {
         context.getMainFrame().switchActivePanels();
     }
 

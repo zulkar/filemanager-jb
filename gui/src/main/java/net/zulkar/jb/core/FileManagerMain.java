@@ -1,11 +1,12 @@
 package net.zulkar.jb.core;
 
 import com.typesafe.config.ConfigFactory;
-import net.zulkar.jb.core.cache.CacheableStorage;
-import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ui.ActionManager;
 import net.zulkar.jb.core.ui.MainFrame;
-import net.zulkar.jb.core.ui.action.*;
+import net.zulkar.jb.core.ui.action.CancelAction;
+import net.zulkar.jb.core.ui.action.ChangeStorageAction;
+import net.zulkar.jb.core.ui.action.OpenAction;
+import net.zulkar.jb.core.ui.action.SwitchAction;
 import net.zulkar.jb.core.ui.render.SystemIconLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,19 +21,18 @@ public class FileManagerMain extends JFrame {
             try {
                 SystemIconLoader iconLoader = new SystemIconLoader();
                 StorageManager storageManager = new StorageManager();
-                CacheableStorage initialStorage = getInitialStorage(storageManager);
-                MainFrame frame = new MainFrame(iconLoader);
+                MainFrame frame = new MainFrame();
                 ActionManager actionManager = new ActionManager(ConfigFactory.load());
 
-                actionManager.init(new UiContext(frame, storageManager),
+                UiContext context = new UiContext(frame, storageManager);
+                actionManager.init(context,
                         new OpenAction.Factory(),
                         new SwitchAction.Factory(),
                         new ChangeStorageAction.FactoryLeftPanel(),
                         new ChangeStorageAction.FactoryRightPanel(),
-                        new ReloadAction.Factory(),
                         new CancelAction.Factory()
                 );
-                frame.init(initialStorage, initialStorage, actionManager, new CleanTmpRunnable(storageManager, iconLoader));
+                frame.init(iconLoader, context, actionManager, new CleanTmpRunnable(storageManager, iconLoader));
 
                 frame.pack();
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,13 +44,6 @@ public class FileManagerMain extends JFrame {
         });
     }
 
-    private static CacheableStorage getInitialStorage(StorageManager storageManager) {
-        CacheableStorage[] storages = storageManager.getAllAvailableStorages();
-        if (storages == null || storages.length == 0) {
-            throw new IllegalStateException("No storages available!");
-        }
-        return storages[0];
-    }
 
     private static class CleanTmpRunnable implements Runnable {
         private final StorageManager storageManager;

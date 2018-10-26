@@ -5,6 +5,7 @@ import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.handlers.zip.ZipHandler;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("IntegrationTest")
 public class LocalStorageIntegrationTest {
 
     private File resourceDir;

@@ -1,7 +1,6 @@
 package net.zulkar.jb.core.ui.action;
 
 import net.zulkar.jb.core.UiContext;
-import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.jobs.ChangeStorageJob;
 import net.zulkar.jb.core.ui.render.FileListPanel;
 import net.zulkar.jb.core.ui.storage.ChooseStorageDialog;
@@ -9,10 +8,7 @@ import net.zulkar.jb.core.ui.storage.StorageSupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 import java.util.function.Function;
 
 public class ChangeStorageAction extends FileManagerAction {
@@ -26,20 +22,12 @@ public class ChangeStorageAction extends FileManagerAction {
     }
 
     @Override
-    protected void doAction(ActionEvent e) throws IOException {
+    protected void doAction(ActionEvent e) {
 
-
-        ChooseStorageDialog dialog = new ChooseStorageDialog(context.getStorageManager(), context.getMainFrame());
+        ChooseStorageDialog dialog = context.getChooseStorageDialog();
         StorageSupplier supplier = dialog.choose();
         if (supplier != null) {
-            new ChangeStorageJob(context, supplier, panelGetter.apply(context)).execute();
-        }
-    }
-
-    private static class LocalStorageRenderer implements ListCellRenderer<Storage> {
-        @Override
-        public Component getListCellRendererComponent(JList<? extends Storage> list, Storage value, int index, boolean isSelected, boolean cellHasFocus) {
-            return new JLabel(value.getName());
+            context.getJobExecutor().execute(new ChangeStorageJob(context, supplier, panelGetter.apply(context)));
         }
     }
 

@@ -1,6 +1,9 @@
 package net.zulkar.jb.core.ui;
 
-import net.zulkar.jb.core.cache.CacheableStorage;
+import net.zulkar.jb.core.StorageManager;
+import net.zulkar.jb.core.UiContext;
+import net.zulkar.jb.core.domain.Storage;
+import net.zulkar.jb.core.ui.render.FileListModel;
 import net.zulkar.jb.core.ui.render.FileListPanel;
 import net.zulkar.jb.core.ui.render.IconLoader;
 import org.apache.commons.lang3.StringUtils;
@@ -16,26 +19,33 @@ public class MainFrame extends JFrame {
     private FileListPanel leftPanel;
     private FileListPanel rightPanel;
 
-    private final IconLoader iconLoader;
     private FileListPanel activePanel;
     private JLabel statusBar;
 
-    public MainFrame(IconLoader iconLoader) throws IOException {
+    public MainFrame() throws IOException {
         super("FileManager");
-        this.iconLoader = iconLoader;
     }
 
-    public void init(CacheableStorage initialLeft, CacheableStorage initialRight, ActionManager actionManager, Runnable onClose) throws IOException {
-        leftPanel = new FileListPanel("Left", iconLoader, actionManager, initialLeft, this);
-        rightPanel = new FileListPanel("Right", iconLoader, actionManager, initialRight, this);
+    public void init(IconLoader iconLoader,
+                     UiContext uiContext,
+                     ActionManager actionManager,
+                     Runnable onClose) throws IOException {
+
+        leftPanel = createFileListPanel("Left", actionManager, uiContext, iconLoader);
+        rightPanel = createFileListPanel("Right", actionManager, uiContext, iconLoader);
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 leftPanel, rightPanel);
         splitPane.setResizeWeight(0.5);
         add(splitPane, BorderLayout.CENTER);
+
+
         setFocusTraversalKeysEnabled(false);
         setMinimumSize(new Dimension(400, 400));
         statusBar = new JLabel(" ");
+
         this.add(statusBar, BorderLayout.SOUTH);
+
         this.pack();
         this.setLocationByPlatform(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -94,4 +104,22 @@ public class MainFrame extends JFrame {
     public void makeActive(FileListPanel fileListPanel) {
         activePanel = fileListPanel;
     }
+
+    private FileListPanel createFileListPanel(String panelName, ActionManager actionManager, UiContext uiContext, IconLoader iconLoader) throws IOException {
+        Storage storage = getInitialStorage(uiContext.getStorageManager());
+        //local storage - can be retrieved in EDT
+        FileListModel.EntityData initialEntityData = new FileListModel.EntityData(storage.getRootEntity(), null, storage.getRootEntity().ls());
+        FileListModel fileListModel = new FileListModel(iconLoader, initialEntityData);
+        return new FileListPanel(panelName, fileListModel, actionManager, storage, uiContext);
+    }
+
+    private static Storage getInitialStorage(StorageManager storageManager) {
+        Storage[] storages = storageManager.getAllAvailableStorages();
+        if (storages == null || storages.length == 0) {
+            throw new IllegalStateException("No storages available!");
+        }
+        return storages[0];
+    }
+
 }
+

@@ -1,9 +1,10 @@
 package net.zulkar.jb.core.ui.render;
 
-import net.zulkar.jb.core.cache.CacheableStorage;
+import net.zulkar.jb.core.UiContext;
 import net.zulkar.jb.core.domain.FileEntity;
+import net.zulkar.jb.core.domain.Storage;
+import net.zulkar.jb.core.jobs.ChangeDirJob;
 import net.zulkar.jb.core.ui.ActionManager;
-import net.zulkar.jb.core.ui.MainFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,17 +21,19 @@ public class FileListPanel extends JPanel {
 
     private static final Logger log = LogManager.getLogger(FileListPanel.class);
     private final FileListModel model;
+    private Storage storage;
+    private final UiContext context;
     private final JTable table;
     private final JLabel storageLabel;
     private final String panelName;
-    private final MainFrame mainFrame;
     private final JTextField currentPathField;
 
 
-    public FileListPanel(String panelName, IconLoader iconLoader, ActionManager actionManager, CacheableStorage initialStorage, MainFrame mainFrame) throws IOException {
+    public FileListPanel(String panelName, FileListModel model, ActionManager actionManager, Storage initialStorage, UiContext context) throws IOException {
         this.panelName = panelName;
-        this.mainFrame = mainFrame;
-        this.model = new FileListModel(iconLoader, initialStorage);
+        this.model = model;
+        storage = initialStorage;
+        this.context = context;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         table = createTable();
@@ -44,7 +47,7 @@ public class FileListPanel extends JPanel {
         this.add(currentPathField);
 
         currentPathField.addActionListener(l -> {
-            cd(currentPathField.getText());
+            context.getJobExecutor().execute(new ChangeDirJob(context, this.storage, currentPathField.getText(), this));
             table.grabFocus();
         });
         JPanel panel = new JPanel();
@@ -90,48 +93,26 @@ public class FileListPanel extends JPanel {
     }
 
 
-    public void setCurrentStorage(CacheableStorage storage) throws IOException {
-        log.debug("set {} at panel {}", storage, panelName);
-        model.setStorage(storage);
-        storageLabel.setText(storage.getName());
-        cd(storage.getRootEntity().getAbsolutePath());
+    public void setStorage(Storage storage) throws IOException {
+        this.storage = storage;
+        this.storageLabel.setText(storage.getName());
     }
 
-    public FileEntity getCurrentEntity() throws IOException {
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public FileEntity getCurrentEntity() {
         if (table.getSelectedRow() == -1) {
             select(0);
         }
         return model.getEntity(table.getSelectedRow());
     }
 
-    public CacheableStorage getCurrentStorage() {
-        return model.getStorage();
-
+    public FileListModel getModel() {
+        return model;
     }
 
-    public void cd(String path) {
-
-
-        SwingUtilities.invokeLater(() -> {
-            try {
-
-                if (model.setPath(path)) {
-                    log.debug("cd to {} in {}", path, panelName);
-                    currentPathField.setText(path);
-                    select(0);
-                    model.fireTableDataChanged();
-                } else {
-                    mainFrame.setStatus("Cannot cd into %s", path);
-                }
-
-            } catch (IOException e) {
-                log.error(e);
-                mainFrame.setStatus("Cannot resolve %s", path);
-            }
-
-        });
-
-    }
 
     private void select(int row) {
         if (row == -1 || row > table.getRowCount() - 1) {
@@ -148,6 +129,10 @@ public class FileListPanel extends JPanel {
         return panelName;
     }
 
+    public void setStatusPath(String absolutePath) {
+        currentPathField.setText(absolutePath);
+    }
+
     public class SelectionChangeFocusListener implements FocusListener {
         private int lastSelection = 0;
 
@@ -159,7 +144,7 @@ public class FileListPanel extends JPanel {
 
         @Override
         public void focusGained(FocusEvent e) {
-            mainFrame.makeActive(FileListPanel.this);
+            context.getMainFrame().makeActive(FileListPanel.this);
             if (lastSelection == -1) {
                 lastSelection = 0;
             }

@@ -25,7 +25,7 @@ public abstract class CancellableBackgroundJob<T> {
     }
 
 
-    public Future<T> execute() {
+    Future<T> execute() {
         if (needLock) {
             this.context.lockActions(this);
         }

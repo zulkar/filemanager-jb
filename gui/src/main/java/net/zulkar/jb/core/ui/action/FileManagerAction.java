@@ -1,18 +1,19 @@
 package net.zulkar.jb.core.ui.action;
 
+import com.google.common.annotations.VisibleForTesting;
 import net.zulkar.jb.core.UiContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 
 public abstract class FileManagerAction extends AbstractAction {
 
     private static final Logger log = LogManager.getLogger(FileManagerAction.class);
     protected final UiContext context;
-    private final boolean ignoreLock;
+    @VisibleForTesting
+    final boolean ignoreLock;
 
     protected FileManagerAction(UiContext context) {
         this(context, false);
@@ -24,20 +25,18 @@ public abstract class FileManagerAction extends AbstractAction {
         this.ignoreLock = ignoreLock;
     }
 
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        try {
-            if (!context.isActionsLocked() || ignoreLock) {
-                doAction(e);
-            } else {
-                log.debug("Actions is locked for {}", this.getClass().getSimpleName());
-            }
-        } catch (IOException ex) {
-            context.getMainFrame().setStatus("Exception: %s", ex);
+        if (!context.isActionsLocked() || ignoreLock) {
+            doAction(e);
+        } else {
+            log.debug("Actions is locked for {}", this.getClass().getSimpleName());
         }
+
     }
 
-    protected abstract void doAction(ActionEvent e) throws IOException;
+    protected abstract void doAction(ActionEvent e);
 
 
     public interface Factory<T extends FileManagerAction> {

@@ -1,11 +1,14 @@
 package net.zulkar.jb.core.jobs;
 
+import javafx.util.Pair;
 import net.zulkar.jb.core.UiContext;
-import net.zulkar.jb.core.cache.CacheableStorage;
+import net.zulkar.jb.core.domain.FileEntity;
+import net.zulkar.jb.core.domain.Storage;
+import net.zulkar.jb.core.ui.render.FileListModel;
 import net.zulkar.jb.core.ui.render.FileListPanel;
 import net.zulkar.jb.core.ui.storage.StorageSupplier;
 
-public class ChangeStorageJob extends CancellableBackgroundJob<CacheableStorage> {
+public class ChangeStorageJob extends CancellableBackgroundJob<Pair<Storage, FileListModel.EntityData>> {
     private final StorageSupplier storageSupplier;
     private final FileListPanel panel;
 
@@ -16,13 +19,17 @@ public class ChangeStorageJob extends CancellableBackgroundJob<CacheableStorage>
     }
 
     @Override
-    protected CacheableStorage doJob() throws Exception {
-        return storageSupplier.get();
+    protected Pair<Storage, FileListModel.EntityData> doJob() throws Exception {
+        Storage storage = storageSupplier.get();
+        FileEntity root = storage.getRootEntity();
+        return new Pair<>(storage, new FileListModel.EntityData(root, null, root.ls()));
+
     }
 
     @Override
-    protected void succeedEDT(CacheableStorage result) throws Exception {
-        panel.setCurrentStorage(result);
+    protected void succeedEDT(Pair<Storage, FileListModel.EntityData> result) throws Exception {
+        panel.setStorage(result.getKey());
+        panel.getModel().setCurrentEntity(result.getValue());
     }
 
     @Override
