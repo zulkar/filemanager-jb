@@ -1,6 +1,7 @@
 package net.zulkar.jb.core.ui.action;
 
 import net.zulkar.jb.core.UiContext;
+import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.jobs.ChangeDirJob;
 import net.zulkar.jb.core.jobs.OpenFileJob;

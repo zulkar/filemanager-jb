@@ -47,7 +47,7 @@ public class StorageManager implements AutoCloseable {
             ftpStorage = new CacheableStorage(new FtpStorage(handler, parameters));
             storageMap.put(parameters, ftpStorage);
         }
-        return ftpStorage;
+        return new CacheableStorage(ftpStorage);
 
 
     }
