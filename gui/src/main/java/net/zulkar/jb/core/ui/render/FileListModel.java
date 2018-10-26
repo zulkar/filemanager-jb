@@ -2,7 +2,6 @@ package net.zulkar.jb.core.ui.render;
 
 import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.FileEntity;
-import net.zulkar.jb.core.domain.Storage;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,10 +58,10 @@ public class FileListModel extends AbstractTableModel {
     }
 
     private boolean changeCurrent(FileEntity newCurrent) throws IOException {
-        List<FileEntity> newData = newCurrent.ls();
+        List<FileEntity> newData = storage.ls(newCurrent);
         if (newData != null) {
             log.debug("setting path to {}", newCurrent.getAbsolutePath());
-            parent = newCurrent.getParent();
+            parent = storage.getParent(newCurrent);
             data = newData.toArray(new FileEntity[0]);
             Arrays.sort(data, sortComparator);
             current = newCurrent;

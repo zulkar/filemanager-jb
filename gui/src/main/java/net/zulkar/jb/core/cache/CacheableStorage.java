@@ -7,37 +7,49 @@ import net.zulkar.jb.core.SystemUtils;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.domain.Storage;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+//todo: to be refactored
 public class CacheableStorage implements Storage {
-    private final static String PREFIX = "net.zulkar.jb-cache";
+    private final static String PREFIX = "net.zulkar.jb-entityCache";
     private final File cacheDir;
     private static final Logger log = LogManager.getLogger(CacheableStorage.class);
+    private final FileEntity rootEntity;
 
     public final Storage storage;
 
-    public final LoadingCache<String, Optional<FileEntity>> cache;
+    public final LoadingCache<String, Optional<FileEntity>> entityCache;
+    public final LoadingCache<String, Optional<List<FileEntity>>> childrenCache;
+
     private final long maxSize;
 
     public CacheableStorage(Storage storage) throws IOException {
         this.storage = storage;
         this.maxSize = SystemUtils.getLongProperty("net.zulkar.jb.cachesize", 10000L);
+        rootEntity = storage.getRootEntity();
         if (storage.needCache()) {
-            cache = CacheBuilder.newBuilder()
+            entityCache = CacheBuilder.newBuilder()
                     .maximumSize(maxSize)
                     .build(new EntityCacheLoader());
+            childrenCache = CacheBuilder.newBuilder()
+                    .maximumSize(maxSize)
+                    .build(new ChildrenCacheLoader());
             cacheDir = Files.createTempDirectory(PREFIX).toFile();
         } else {
-            cache = null;
+            entityCache = null;
             cacheDir = null;
+            childrenCache = null;
         }
 
     }
@@ -49,7 +61,7 @@ public class CacheableStorage implements Storage {
         }
         try {
             log.debug("retrieving path {}", path);
-            return cache.get(path).orElse(null);
+            return entityCache.get(path).orElse(null);
 
         } catch (ExecutionException e) {
             if (e.getCause() instanceof IOException) {
@@ -60,16 +72,39 @@ public class CacheableStorage implements Storage {
         }
     }
 
+    public List<FileEntity> ls(FileEntity entity) throws IOException {
+        if (!storage.needCache()) {
+            return entity.ls();
+        }
+        try {
+            return childrenCache.get(entity.getAbsolutePath()).orElse(null);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof IOException) {
+                throw new IOException(e.getCause()); // throwing new exception greatly helps in issue resolving
+            } else {
+                throw new RuntimeException(e.getCause());
+            }
+        }
+
+    }
+
+    public FileEntity getParent(FileEntity entity) throws IOException {
+        if (!storage.needCache()) {
+            return entity.getParent();
+        }
+        return storage.resolve(FilenameUtils.normalizeNoEndSeparator(FilenameUtils.getFullPath(entity.getAbsolutePath()), true));
+    }
+
 
     @SuppressWarnings("OptionalAssignedToNull")
     public synchronized void invalidate(String path) throws IOException {
         if (!storage.needCache()) {
             return;
         }
-        if (cache.getIfPresent(path) != null) {
-            cache.invalidateAll();
+        if (entityCache.getIfPresent(path) != null) {
+            entityCache.invalidateAll();
             FileUtils.cleanDirectory(cacheDir);
-            // We cannot invalidate cache only this entity, because it can be an archive entry.
+            // We cannot invalidate entityCache only this entity, because it can be an archive entry.
             // todo: need to found if entity is an archive, and invalidate only entities from this archive
         }
     }
@@ -116,7 +151,7 @@ public class CacheableStorage implements Storage {
         List<FileEntity> children = resolved.ls();
         if (children != null) {
             if (children.size() > maxSize - 2) {
-                log.warn("Entity {} has {} children, cannot cache them all", path, children.size());
+                log.warn("Entity {} has {} children, cannot entityCache them all", path, children.size());
             }
             for (FileEntity child : children) {
                 resolve(child.getAbsolutePath());
@@ -130,12 +165,30 @@ public class CacheableStorage implements Storage {
         }
     }
 
+
     private class EntityCacheLoader extends CacheLoader<String, Optional<FileEntity>> {
 
         @Override
         public Optional<FileEntity> load(String path) throws IOException {
-            log.debug("Path {} was not found in cache - trying to resolve", path);
+            log.debug("Path {} was not found in entityCache - trying to resolve", path);
             return Optional.ofNullable(storage.resolve(path));
+        }
+
+    }
+
+    private class ChildrenCacheLoader extends CacheLoader<String, Optional<List<FileEntity>>> {
+
+        @Override
+        public Optional<List<FileEntity>> load(String path) throws IOException {
+            log.debug("Path {} was not found in chidlren cache - trying to resolve", path);
+            ;
+            return Optional.ofNullable(CacheableStorage.this.resolve(path)).map(e -> {
+                try {
+                    return e.ls();
+                } catch (IOException e1) {
+                    throw new UncheckedIOException(e1);
+                }
+            });
         }
 
     }
