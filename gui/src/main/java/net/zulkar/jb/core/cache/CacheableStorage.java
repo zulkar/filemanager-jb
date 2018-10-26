@@ -114,9 +114,7 @@ public class CacheableStorage implements Storage {
             this.resolve(resolved.getParent().getAbsolutePath());
         }
         List<FileEntity> children = resolved.ls();
-        if (children == null) {
-            ensureDataCached(resolved);
-        } else {
+        if (children != null) {
             if (children.size() > maxSize - 2) {
                 log.warn("Entity {} has {} children, cannot cache them all", path, children.size());
             }
@@ -127,34 +125,9 @@ public class CacheableStorage implements Storage {
         return resolved;
     }
 
-    public void ensureDataCached(FileEntity resolved) throws IOException {
-        try (InputStream ignored = cachedStreamData(resolved)) {
+    public void ensureDataCached(FileEntity entity) throws IOException {
+        try (InputStream ignored = entity.openInputStream()) {
         }
-    }
-
-    synchronized FileInputStream cachedStreamData(FileEntity entity) throws IOException { //todo: remove syncronized, should lock on file
-        File cachedFile = new File(cacheDir, entity.getAbsolutePath());
-        if (!cachedFile.exists()) {
-            if (tryToCreateParentFileIfNotExists(cachedFile)) {
-                log.debug("{}: entity {} to be cached in {}", this, entity, cachedFile);
-                try (InputStream is = entity.openInputStream();
-                     FileOutputStream fos = new FileOutputStream(cachedFile);
-                     BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-                    IOUtils.copy(is, bos);
-                }
-            }
-        }
-        return new FileInputStream(cachedFile);
-    }
-
-
-    private boolean tryToCreateParentFileIfNotExists(File cachedFile) {
-        return cachedFile.getParentFile().exists() || cachedFile.getParentFile().mkdirs();
-    }
-
-
-    public static File[] getCacheDirectories() {
-        return new File(System.getProperty("java.io.tmpdir")).listFiles((d, n) -> n.startsWith(PREFIX));
     }
 
     private class EntityCacheLoader extends CacheLoader<String, Optional<FileEntity>> {
@@ -162,7 +135,7 @@ public class CacheableStorage implements Storage {
         @Override
         public Optional<FileEntity> load(String path) throws IOException {
             log.debug("Path {} was not found in cache - trying to resolve", path);
-            return Optional.ofNullable(storage.resolve(path)).map(e -> new CachedDataFileEntity(e, CacheableStorage.this));
+            return Optional.ofNullable(storage.resolve(path));
         }
 
     }
