@@ -1,6 +1,6 @@
 package net.zulkar.jb.core.ui;
 
-import net.zulkar.jb.core.domain.Storage;
+import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.ui.render.FileListPanel;
 import net.zulkar.jb.core.ui.render.IconLoader;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ public class MainFrame extends JFrame {
         this.iconLoader = iconLoader;
     }
 
-    public void init(Storage initialLeft, Storage initialRight, ActionManager actionManager, Runnable onClose) throws IOException {
+    public void init(CacheableStorage initialLeft, CacheableStorage initialRight, ActionManager actionManager, Runnable onClose) throws IOException {
         leftPanel = new FileListPanel("Left", iconLoader, actionManager, initialLeft, this);
         rightPanel = new FileListPanel("Right", iconLoader, actionManager, initialRight, this);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,

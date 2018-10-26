@@ -1,9 +1,9 @@
 package net.zulkar.jb.core.ui.action;
 
 import net.zulkar.jb.core.UiContext;
-import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.jobs.ChangeDirJob;
+import net.zulkar.jb.core.jobs.OpenFileJob;
 import net.zulkar.jb.core.ui.preview.Previewer;
 import net.zulkar.jb.core.ui.render.FileListPanel;
 import org.apache.logging.log4j.LogManager;
@@ -33,9 +33,9 @@ public class OpenAction extends FileManagerAction {
             context.getMainFrame().setStatus("Cannot open: NULL");
         } else if (entity.isDir() || entity.isContainer()) {
             log.debug("moving to {} at {}", entity, activePanel.getPanelName());
-            new ChangeDirJob(context, (CacheableStorage) activePanel.getCurrentStorage(), entity.getAbsolutePath(), activePanel).execute();
+            new ChangeDirJob(context, activePanel.getCurrentStorage(), entity.getAbsolutePath(), activePanel).execute();
         } else if (previewer.supports(entity)) {
-            previewer.preview(entity);
+            new OpenFileJob(context, activePanel.getCurrentStorage(), entity, previewer).execute();
         } else {
             log.error("Cannot open: {}", entity.getName());
             context.getMainFrame().setStatus(String.format("Cannot open %s", entity.getName()));

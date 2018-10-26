@@ -9,6 +9,7 @@ import net.zulkar.jb.core.ui.preview.TextPreviewer;
 import net.zulkar.jb.core.ui.preview.UnionPreviewer;
 
 import javax.annotation.concurrent.GuardedBy;
+import java.awt.*;
 import java.util.Set;
 
 public class UiContext {
@@ -41,9 +42,13 @@ public class UiContext {
 
     public synchronized void unlockActions(CancellableBackgroundJob<?> job) {
         lockSets.remove(job);
+        if (!isActionsLocked()) {
+            this.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
     }
 
     public synchronized void lockActions(CancellableBackgroundJob<?> job) {
+        this.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         lockSets.add(job);
     }
 

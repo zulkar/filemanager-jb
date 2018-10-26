@@ -2,8 +2,10 @@ package net.zulkar.jb.core.ui.action;
 
 import net.zulkar.jb.core.UiContext;
 import net.zulkar.jb.core.domain.Storage;
+import net.zulkar.jb.core.jobs.ChangeStorageJob;
 import net.zulkar.jb.core.ui.render.FileListPanel;
 import net.zulkar.jb.core.ui.storage.ChooseStorageDialog;
+import net.zulkar.jb.core.ui.storage.StorageSupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,9 +30,9 @@ public class ChangeStorageAction extends FileManagerAction {
 
 
         ChooseStorageDialog dialog = new ChooseStorageDialog(context.getStorageManager(), context.getMainFrame());
-        Storage storage = dialog.setChosenStorage();
-        if (storage != null) {
-            panelGetter.apply(context).setCurrentStorage(storage);
+        StorageSupplier supplier = dialog.choose();
+        if (supplier != null) {
+            new ChangeStorageJob(context, supplier, panelGetter.apply(context)).execute();
         }
     }
 

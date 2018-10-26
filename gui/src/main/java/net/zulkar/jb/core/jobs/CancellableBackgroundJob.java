@@ -28,7 +28,6 @@ public abstract class CancellableBackgroundJob<T> {
     public Future<T> execute() {
         if (needLock) {
             this.context.lockActions(this);
-            context.getMainFrame().setStatus("waiting...");
         }
         worker.execute();
         return worker;
@@ -55,7 +54,6 @@ public abstract class CancellableBackgroundJob<T> {
         protected void done() {
             if (needLock) {
                 context.unlockActions(CancellableBackgroundJob.this);
-                context.getMainFrame().setStatus("");
             }
 
             try {

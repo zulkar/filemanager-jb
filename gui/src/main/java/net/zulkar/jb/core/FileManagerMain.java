@@ -1,6 +1,7 @@
 package net.zulkar.jb.core;
 
 import com.typesafe.config.ConfigFactory;
+import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ui.ActionManager;
 import net.zulkar.jb.core.ui.MainFrame;
@@ -22,7 +23,7 @@ public class FileManagerMain extends JFrame {
             try {
                 SystemIconLoader iconLoader = new SystemIconLoader();
                 StorageManager storageManager = new StorageManager();
-                Storage initialStorage = getInitialStorage(storageManager);
+                CacheableStorage initialStorage = getInitialStorage(storageManager);
                 MainFrame frame = new MainFrame(iconLoader);
                 ActionManager actionManager = new ActionManager(ConfigFactory.load());
 
@@ -45,8 +46,8 @@ public class FileManagerMain extends JFrame {
         });
     }
 
-    private static Storage getInitialStorage(StorageManager storageManager) {
-        Storage[] storages = storageManager.getAllAvailableStorages();
+    private static CacheableStorage getInitialStorage(StorageManager storageManager) {
+        CacheableStorage[] storages = storageManager.getAllAvailableStorages();
         if (storages == null || storages.length == 0) {
             throw new IllegalStateException("No storages available!");
         }

@@ -1,5 +1,6 @@
 package net.zulkar.jb.core.ui.render;
 
+import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.domain.Storage;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sun.misc.Cache;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,7 +21,7 @@ import static org.mockito.Mockito.lenient;
 class FileListModelTest {
 
     @Mock
-    private Storage storage;
+    private CacheableStorage storage;
     @Mock
     private IconLoader iconLoader;
     @Mock

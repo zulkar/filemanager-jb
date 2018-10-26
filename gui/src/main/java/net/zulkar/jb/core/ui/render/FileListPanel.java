@@ -1,8 +1,7 @@
 package net.zulkar.jb.core.ui.render;
 
+import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.FileEntity;
-import net.zulkar.jb.core.domain.Storage;
-import net.zulkar.jb.core.jobs.ChangeDirJob;
 import net.zulkar.jb.core.ui.ActionManager;
 import net.zulkar.jb.core.ui.MainFrame;
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +27,7 @@ public class FileListPanel extends JPanel {
     private final JTextField currentPathField;
 
 
-    public FileListPanel(String panelName, IconLoader iconLoader, ActionManager actionManager, Storage initialStorage, MainFrame mainFrame) throws IOException {
+    public FileListPanel(String panelName, IconLoader iconLoader, ActionManager actionManager, CacheableStorage initialStorage, MainFrame mainFrame) throws IOException {
         this.panelName = panelName;
         this.mainFrame = mainFrame;
         this.model = new FileListModel(iconLoader, initialStorage);
@@ -91,11 +90,11 @@ public class FileListPanel extends JPanel {
     }
 
 
-    public void setCurrentStorage(Storage storage) throws IOException {
+    public void setCurrentStorage(CacheableStorage storage) throws IOException {
         log.debug("set {} at panel {}", storage, panelName);
         model.setStorage(storage);
         storageLabel.setText(storage.getName());
-        cd("/");
+        cd(storage.getRootEntity().getAbsolutePath());
     }
 
     public FileEntity getCurrentEntity() throws IOException {
@@ -105,7 +104,7 @@ public class FileListPanel extends JPanel {
         return model.getEntity(table.getSelectedRow());
     }
 
-    public Storage getCurrentStorage() {
+    public CacheableStorage getCurrentStorage() {
         return model.getStorage();
 
     }

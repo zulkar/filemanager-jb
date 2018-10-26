@@ -17,6 +17,6 @@ public class CachedDataFileEntity extends ProxyFileEntity {
 
     @Override
     public InputStream openInputStream() throws IOException {
-        return cacheableStorage.cachedData(entity);
+        return cacheableStorage.cachedStreamData(entity);
     }
 }

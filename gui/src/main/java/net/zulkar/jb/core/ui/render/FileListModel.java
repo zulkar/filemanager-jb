@@ -1,5 +1,6 @@
 package net.zulkar.jb.core.ui.render;
 
+import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.FileEntity;
 import net.zulkar.jb.core.domain.Storage;
 import org.apache.commons.io.FileUtils;
@@ -24,7 +25,7 @@ import static net.zulkar.jb.core.ui.render.FileEntityComparators.nameIgnoreCase;
 public class FileListModel extends AbstractTableModel {
     private static final Logger log = LogManager.getLogger(FileListModel.class);
     private static final String[] HEADERS = {"", "Name", "Size", "Modified"};
-    private Storage storage;
+    private CacheableStorage storage;
     private IconLoader loader;
     private FileEntity[] data;
     private FileEntity current;
@@ -32,14 +33,14 @@ public class FileListModel extends AbstractTableModel {
     private final Comparator<FileEntity> sortComparator;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(SHORT).withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault());
 
-    public FileListModel(IconLoader loader, Storage storage) throws IOException {
+    public FileListModel(IconLoader loader, CacheableStorage storage) throws IOException {
         this.loader = loader;
         setStorage(storage);
         sortComparator = dirFirst().thenComparing(nameIgnoreCase());
         changeCurrent(storage.getRootEntity());
     }
 
-    public final void setStorage(Storage storage) throws IOException {
+    public final void setStorage(CacheableStorage storage) throws IOException {
         this.storage = storage;
     }
 
@@ -173,7 +174,7 @@ public class FileListModel extends AbstractTableModel {
         return current;
     }
 
-    public Storage getStorage() {
+    public CacheableStorage getStorage() {
         return storage;
     }
 

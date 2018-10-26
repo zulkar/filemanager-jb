@@ -31,6 +31,8 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
 
     private void connect() throws IOException {
         FTPClientConfig conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
+        ftpClient.setControlKeepAliveTimeout(10);
+        ftpClient.setControlKeepAliveReplyTimeout(30);
         ftpClient.configure(conf);
         ftpClient.connect(ftpParameters.getHost(), ftpParameters.getPort());
         log.info("Connected to {}", ftpParameters.getHost());
@@ -42,6 +44,7 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
         if (!ftpClient.login(ftpParameters.getUser(), ftpParameters.getPassword())) {
             throw new IOException(String.format("Cannot connect into %s as %s", ftpParameters.getHost(), ftpParameters.getUser()));
         }
+
         ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         log.info("Logged into to {}", ftpParameters.getHost());
     }

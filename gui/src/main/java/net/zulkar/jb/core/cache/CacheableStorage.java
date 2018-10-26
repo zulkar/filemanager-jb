@@ -115,8 +115,7 @@ public class CacheableStorage implements Storage {
         }
         List<FileEntity> children = resolved.ls();
         if (children == null) {
-            try (InputStream ignored = cachedData(resolved)) {
-            }
+            ensureDataCached(resolved);
         } else {
             if (children.size() > maxSize - 2) {
                 log.warn("Entity {} has {} children, cannot cache them all", path, children.size());
@@ -128,7 +127,12 @@ public class CacheableStorage implements Storage {
         return resolved;
     }
 
-    synchronized FileInputStream cachedData(FileEntity entity) throws IOException { //todo: remove syncronized, should lock on file
+    public void ensureDataCached(FileEntity resolved) throws IOException {
+        try (InputStream ignored = cachedStreamData(resolved)) {
+        }
+    }
+
+    synchronized FileInputStream cachedStreamData(FileEntity entity) throws IOException { //todo: remove syncronized, should lock on file
         File cachedFile = new File(cacheDir, entity.getAbsolutePath());
         if (!cachedFile.exists()) {
             if (tryToCreateParentFileIfNotExists(cachedFile)) {

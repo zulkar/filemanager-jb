@@ -1,6 +1,7 @@
 package net.zulkar.jb.core.ui.storage;
 
 import net.zulkar.jb.core.StorageManager;
+import net.zulkar.jb.core.cache.CacheableStorage;
 import net.zulkar.jb.core.domain.Storage;
 import net.zulkar.jb.core.ftp.FtpParameters;
 import net.zulkar.jb.core.ui.MainFrame;
@@ -13,14 +14,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.text.NumberFormat;
 
 public class ChooseStorageDialog extends JDialog {
     private static final Logger log = LogManager.getLogger(ChooseStorageDialog.class);
-    private final JList<Storage> jList;
+    private final JList<CacheableStorage> storageJList;
     private final StorageManager storageManager;
-    private volatile Storage chosenStorage;
+    private StorageSupplier storageSupplier;
     private final JTextField hostField;
     private final JTextField userField;
     private final JFormattedTextField portField;
@@ -29,7 +29,7 @@ public class ChooseStorageDialog extends JDialog {
     public ChooseStorageDialog(StorageManager storageManager, MainFrame mainFrame) {
         super(mainFrame, true);
         this.storageManager = storageManager;
-        jList = new JList<>(storageManager.getAllAvailableStorages());
+        storageJList = new JList<>(storageManager.getAllAvailableStorages());
 
 
         hostField = new JTextField();
@@ -50,14 +50,14 @@ public class ChooseStorageDialog extends JDialog {
         JPanel choosePanel = new JPanel();
         choosePanel.setLayout(new GridLayout(2, 1));
 
-        jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        jList.setCellRenderer(new StorageListRenderer());
+        storageJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        storageJList.setCellRenderer(new StorageListRenderer());
         registerMouseListener();
-        choosePanel.add(new JScrollPane(jList));
+        choosePanel.add(new JScrollPane(storageJList));
         JPanel buttonPanel = new JPanel();
         JButton ok = new JButton("Ok");
         JButton cancel = new JButton("Cancel");
-        ok.addActionListener(this::setChosenStorage);
+        ok.addActionListener(this::choose);
         cancel.addActionListener(this::cancel);
         buttonPanel.add(ok);
         buttonPanel.add(cancel);
@@ -66,19 +66,20 @@ public class ChooseStorageDialog extends JDialog {
     }
 
     private void registerMouseListener() {
-        jList.addMouseListener(new MouseAdapter() {
+        storageJList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    setChosenStorage(null);
+                    choose(null);
                 }
 
             }
         });
     }
 
-    private void setChosenStorage(ActionEvent actionEvent) {
-        chosenStorage = jList.getSelectedValue();
+    private void choose(ActionEvent actionEvent) {
+        CacheableStorage selectedValue = storageJList.getSelectedValue();
+        storageSupplier = () -> selectedValue;
         this.dispose();
     }
 
@@ -117,24 +118,16 @@ public class ChooseStorageDialog extends JDialog {
     }
 
     private void cancel(ActionEvent actionEvent) {
-        this.chosenStorage = null;
+        this.storageSupplier = null;
         this.dispose();
     }
 
     private void createFtpStorage(ActionEvent actionEvent) {
-        try {
-            FtpParameters parameters = getFtpParameters();
-            if (parameters == null) return;
+        FtpParameters parameters = getFtpParameters();
+        if (parameters == null) return;
 
-            this.chosenStorage = storageManager.createFtpStorage(parameters);
-            this.dispose();
-        } catch (IOException e) {
-            log.error(e);
-            JOptionPane.showMessageDialog(this,
-                    "Cannot create FTP storage : " + e.getMessage(),
-                    "IO Exception",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+        this.storageSupplier = () -> storageManager.createFtpStorage(parameters);
+        this.dispose();
 
     }
 
@@ -160,10 +153,10 @@ public class ChooseStorageDialog extends JDialog {
         return result;
     }
 
-    public Storage setChosenStorage() {
+    public StorageSupplier choose() {
         setVisible(true);
         pack();
-        return chosenStorage;
+        return storageSupplier;
     }
 
 
@@ -190,4 +183,5 @@ public class ChooseStorageDialog extends JDialog {
         }
 
     }
+
 }
