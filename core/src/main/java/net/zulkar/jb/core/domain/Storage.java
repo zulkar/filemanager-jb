@@ -15,7 +15,7 @@ public interface Storage extends AutoCloseable {
 
     boolean needCache();
 
-    default String getsysteminternalpath(FileEntity entity) {
+    default String getSystemInternalPath(FileEntity entity) {
         return entity.getAbsolutePath();
     }
 }
