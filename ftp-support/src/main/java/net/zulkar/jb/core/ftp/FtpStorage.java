@@ -3,6 +3,7 @@ package net.zulkar.jb.core.ftp;
 import net.zulkar.jb.core.AbstractStorage;
 import net.zulkar.jb.core.ContainerHandler;
 import net.zulkar.jb.core.domain.FileEntity;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -115,7 +116,7 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
     }
 
     synchronized InputStream getInputStream(String fullPath) throws IOException {
-        File cachedFile = new File(cacheDir, fullPath);
+        File cachedFile = getCachedFile(fullPath);
         if (cachedFile.exists()) {
             log.debug("{}: entity {} is cached in {}", this, fullPath, cachedFile);
             return new FileInputStream(cachedFile);
@@ -135,6 +136,11 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
                 return new ByteArrayInputStream(bos.toByteArray());
             }
         }
+    }
+
+    private File getCachedFile(String fullPath) {
+        String md5 = DigestUtils.md5Hex(fullPath);//need md5 for windows - if FTP contains several files with same name in different case
+        return new File(cacheDir, fullPath + md5);
     }
 
     private void cacheInto(OutputStream os, String fullPath) throws IOException {

@@ -129,8 +129,8 @@ public class FileListPanel extends JPanel {
         return panelName;
     }
 
-    public void setStatusPath(String absolutePath) {
-        currentPathField.setText(absolutePath);
+    public void setToStatusPath(FileEntity entity) {
+        currentPathField.setText(storage.getSystemInternalPath(entity));
     }
 
     public class SelectionChangeFocusListener implements FocusListener {

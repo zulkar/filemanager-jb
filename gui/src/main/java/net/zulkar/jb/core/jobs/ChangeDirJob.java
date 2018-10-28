@@ -31,7 +31,7 @@ public class ChangeDirJob extends CancellableBackgroundJob<FileListModel.EntityD
 
     @Override
     protected void succeedEDT(FileListModel.EntityData result) throws IOException {
-        panel.setStatusPath(result.getCurrent().getAbsolutePath());
+        panel.setToStatusPath(result.getCurrent());
         panel.getModel().setCurrentEntity(result);
         panel.makeActive();
     }

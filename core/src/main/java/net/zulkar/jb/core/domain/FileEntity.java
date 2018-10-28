@@ -25,4 +25,5 @@ public interface FileEntity {
     long getSize();
 
     Instant getModificationTime();
+
 }

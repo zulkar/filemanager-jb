@@ -5,6 +5,7 @@ import net.zulkar.jb.core.ContainerHandler;
 import net.zulkar.jb.core.domain.FileEntity;
 
 import java.io.File;
+import java.io.IOException;
 
 public class LocalStorage extends AbstractStorage<LocalFileEntity> {
 
@@ -20,6 +21,11 @@ public class LocalStorage extends AbstractStorage<LocalFileEntity> {
     public void close() {
     }
 
+    @Override
+    public FileEntity resolve(String path) throws IOException {
+        path = LocalFileSystemFactory.getLocalFileSystem().pathToEntityModel(path);
+        return super.resolve(path);
+    }
 
     @Override
     public String toString() {
@@ -53,5 +59,10 @@ public class LocalStorage extends AbstractStorage<LocalFileEntity> {
     @Override
     public boolean needCache() {
         return false;
+    }
+
+    @Override
+    public String getSystemInternalPath(FileEntity entity) {
+        return LocalFileSystemFactory.getLocalFileSystem().pathFromEntityModel(entity.getAbsolutePath(), fileRoot);
     }
 }
