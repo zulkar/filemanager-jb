@@ -70,6 +70,7 @@ public abstract class CancellableBackgroundJob<T> {
 
                 if (!userCancelled) {
                     succeedEDT(get());
+                    context.getMainFrame().setStatus("");
                 }
             } catch (InterruptedException | ExecutionException e) {
                 failedEDT(e);

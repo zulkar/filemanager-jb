@@ -38,7 +38,8 @@ public class FileListPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         table = createTable();
 
-        currentPathField = new JTextField(model.getCurrent().getAbsolutePath());
+        currentPathField = new JTextField();
+        setToStatusPath(model.getCurrent());
 
         currentPathField.setMaximumSize(
                 new Dimension(Integer.MAX_VALUE, currentPathField.getPreferredSize().height));

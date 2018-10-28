@@ -60,6 +60,6 @@ public class ActionManager {
     }
 
     public MouseListener getMouseListener() {
-        return new FileManagerMouseAction(actionMap.get(config.getString("mouseсlick")));
+        return new FileManagerMouseAction(actionMap.get(config.getString("mouseclick")));
     }
 }

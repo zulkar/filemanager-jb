@@ -13,7 +13,7 @@ public class LocalStorage extends AbstractStorage<LocalFileEntity> {
     private final File fileRoot;
 
     public LocalStorage(ContainerHandler containerHandler, File fileRoot) {
-        super(containerHandler, fileRoot.getPath());
+        super(containerHandler, fileRoot.getPath(), LocalFileSystemFactory.getLocalFileSystem().isCaseSensitive());
         this.fileRoot = fileRoot;
     }
 
@@ -24,7 +24,7 @@ public class LocalStorage extends AbstractStorage<LocalFileEntity> {
     @Override
     public FileEntity resolve(String path) throws IOException {
         path = LocalFileSystemFactory.getLocalFileSystem().pathToEntityModel(path);
-        return super.resolve(path);
+        return validateDirAccess(super.resolve(path));
     }
 
     @Override
@@ -52,8 +52,15 @@ public class LocalStorage extends AbstractStorage<LocalFileEntity> {
     }
 
     @Override
-    public LocalFileEntity getRootEntity() {
-        return new LocalFileEntity(fileRoot, this);
+    public LocalFileEntity getRootEntity() throws IOException {
+        return validateDirAccess(new LocalFileEntity(fileRoot, this));
+    }
+
+    private <T extends FileEntity> T validateDirAccess(T entity) throws IOException {
+        if (entity.isDir() && entity.ls() == null) {
+            throw new IOException(String.format("Access denied to %s", entity.getAbsolutePath()));
+        }
+        return entity;
     }
 
     @Override

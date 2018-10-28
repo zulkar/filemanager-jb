@@ -11,11 +11,11 @@ public interface Storage extends AutoCloseable {
 
     String getName();
 
-    FileEntity getRootEntity();
+    FileEntity getRootEntity() throws IOException;
 
     boolean needCache();
 
-    default String getSystemInternalPath(FileEntity entity) {
+    default String getsysteminternalpath(FileEntity entity) {
         return entity.getAbsolutePath();
     }
 }

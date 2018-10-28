@@ -11,7 +11,7 @@ import java.util.List;
 
 public class FtpRemoteEntity implements FileEntity {
     private final FtpStorage ftpStorage;
-    private String fullPath;
+    private final String fullPath;
     private final FTPFile file;
 
     public FtpRemoteEntity(FTPFile file, FtpStorage ftpStorage, String fullPath) {

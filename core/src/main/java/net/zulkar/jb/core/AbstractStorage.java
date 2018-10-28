@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 public abstract class AbstractStorage<FE extends FileEntity> implements Storage {
@@ -18,10 +19,12 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
 
     protected final ContainerHandler containerHandler;
     private String name;
+    private BiPredicate<FileEntity, String> unknownChildrenSearchPredicate;
 
-    protected AbstractStorage(ContainerHandler containerHandler, String name) {
+    protected AbstractStorage(ContainerHandler containerHandler, String name, boolean caseSensitive) {
         this.containerHandler = containerHandler;
         this.name = name;
+        this.unknownChildrenSearchPredicate = getSearchPredicate(caseSensitive);
     }
 
     @Override
@@ -60,7 +63,7 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
     protected abstract FE tryGetNonContainerEntity(String path) throws IOException;
 
     @Override
-    public abstract FE getRootEntity();
+    public abstract FE getRootEntity() throws IOException;
 
     protected FileEntity resolveInnerPath(FileEntity entity, String fullPath, String internalPath) throws IOException {
         return descend(fullPath, internalPath, entity,
@@ -119,7 +122,16 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
         if (children == null) {
             return null;
         }
-        return children.stream().filter(Objects::nonNull).filter(c -> c.getName().equals(pathElement)).findFirst().orElse(null);
+        return children.stream().filter(Objects::nonNull).filter(c -> unknownChildrenSearchPredicate.test(c, pathElement)).findFirst().orElse(null);
+    }
+
+    private BiPredicate<FileEntity, String> getSearchPredicate(boolean caseSensitive) {
+        if (caseSensitive) {
+            return (entity, pathElement) -> entity.getName().equals(pathElement);
+        } else {
+            return (entity, pathElement) -> entity.getName().equalsIgnoreCase(pathElement);
+        }
+
     }
 
 

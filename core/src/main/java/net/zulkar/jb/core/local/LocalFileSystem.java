@@ -10,6 +10,8 @@ interface LocalFileSystem {
     String pathToEntityModel(String absolutePath);
 
     String pathFromEntityModel(String entityPath, File root);
+
+    boolean isCaseSensitive();
 }
 
 class WindowsFileSystem implements LocalFileSystem {
@@ -22,7 +24,13 @@ class WindowsFileSystem implements LocalFileSystem {
 
     @Override
     public String pathFromEntityModel(String entityPath, File root) {
+        entityPath = StringUtils.removeStart(entityPath, "/");
         return FilenameUtils.concat(root.getPath(), FilenameUtils.normalize(entityPath, false));
+    }
+
+    @Override
+    public boolean isCaseSensitive() {
+        return true;
     }
 }
 
@@ -36,6 +44,11 @@ class UnixFileSystem implements LocalFileSystem {
     @Override
     public String pathFromEntityModel(String entityPath, File root) {
         return entityPath;
+    }
+
+    @Override
+    public boolean isCaseSensitive() {
+        return true;
     }
 }
 

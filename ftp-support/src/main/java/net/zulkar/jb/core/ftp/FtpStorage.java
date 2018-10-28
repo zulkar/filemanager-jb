@@ -25,7 +25,7 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
     private final File cacheDir;
 
     public FtpStorage(ContainerHandler containerHandler, FtpParameters ftpParameters) throws IOException {
-        super(containerHandler, String.format("%s@%s:%d", ftpParameters.getUser(), ftpParameters.getHost(), ftpParameters.getPort()));
+        super(containerHandler, String.format("%s@%s:%d", ftpParameters.getUser(), ftpParameters.getHost(), ftpParameters.getPort()), true);
         this.ftpParameters = ftpParameters;
         ftpClient = new FTPClient();
         connect();
