@@ -72,7 +72,6 @@ public class ZipHandler implements ContainerHandler {
             while ((e = zis.getNextEntry()) != null) {
                 archiveFileEntity.add(e);
             }
-            archiveFileEntity.checkAllNodesHaveEntries();
         }
 
     }

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 class LazyZipArchiveFileEntity extends ProxyFileEntity {
-    private ZipHandler zipHandler;
+    private final ZipHandler zipHandler;
 
     private final TreeNode<ZipEntry> root = new TreeNode<>(null, null);
     private boolean errorOnInit = false;
@@ -30,10 +30,10 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
         return true;
     }
 
-    private synchronized void init() {
+    private void init() {
         try {
             zipHandler.init(this, entity);
-            initialized = true;
+            checkAllNodesHaveEntries();
         } catch (IOException e) {
             errorOnInit = true;
         }
@@ -41,20 +41,21 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
 
     @Override
     public List<FileEntity> ls() {
+        checkInit();
         if (errorOnInit) {
             return null;
         }
-        checkInit();
         return Optional.ofNullable(ls("")).orElse(Collections.emptyList());
     }
 
-    private void checkInit() {
+    private synchronized void checkInit() {
         if (!initialized) {
             init();
+            initialized = true;
         }
     }
 
-    void checkAllNodesHaveEntries() {
+    private void checkAllNodesHaveEntries() {
         if (root.getChildren() == null) {
             return; //empty archive
 
@@ -92,6 +93,7 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
     }
 
     FileEntity getParent(String path) {
+        checkInit();
         TreeNode<ZipEntry> node = root;
         String[] pathElements = StringUtils.split(path, "/");
         if (pathElements.length == 1) {
@@ -107,6 +109,7 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
     }
 
     List<FileEntity> ls(String path) {
+        checkInit();
         //todo - replace with descend
         TreeNode<ZipEntry> node = root;
         String[] pathElements = StringUtils.split(path, "/");
@@ -131,6 +134,7 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
         return zipHandler.readContent(entity);
     }
 
+    //todo: removed
     void add(ZipEntry e) {
         TreeNode<ZipEntry> node = getOrCreateNodeStructure(e.getName());
         node.set(e);
