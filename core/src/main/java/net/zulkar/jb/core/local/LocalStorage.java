@@ -64,11 +64,6 @@ public class LocalStorage extends AbstractStorage<LocalFileEntity> {
     }
 
     @Override
-    public boolean needCache() {
-        return false;
-    }
-
-    @Override
     public String getSystemInternalPath(FileEntity entity) {
         return LocalFileSystemFactory.getLocalFileSystem().pathFromEntityModel(entity.getAbsolutePath(), fileRoot);
     }

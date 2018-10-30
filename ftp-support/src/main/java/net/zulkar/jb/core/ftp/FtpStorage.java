@@ -97,11 +97,6 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
         FileUtils.deleteDirectory(cacheDir);
     }
 
-    @Override
-    public boolean needCache() {
-        return true;
-    }
-
     synchronized List<FileEntity> ls(FtpRemoteEntity entity) throws IOException {
         if (entity.isDir()) {
             return Arrays.stream(ftpClient.listFiles(entity.getAbsolutePath())).map(f ->
