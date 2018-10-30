@@ -18,8 +18,8 @@ public abstract class AbstractStorage<FE extends FileEntity> implements Storage 
     private static final Logger log = LogManager.getLogger(AbstractStorage.class);
 
     protected final ContainerHandler containerHandler;
-    private String name;
-    private BiPredicate<FileEntity, String> unknownChildrenSearchPredicate;
+    private final String name;
+    private final BiPredicate<FileEntity, String> unknownChildrenSearchPredicate;
 
     protected AbstractStorage(ContainerHandler containerHandler, String name, boolean caseSensitive) {
         this.containerHandler = containerHandler;
