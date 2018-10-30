@@ -118,6 +118,7 @@ public class FileListPanel extends JPanel {
     private void select(int row) {
         if (row == -1 || row > table.getRowCount() - 1) {
             table.setRowSelectionInterval(0, 0);
+            return;
         }
         table.setRowSelectionInterval(row, row);
     }
