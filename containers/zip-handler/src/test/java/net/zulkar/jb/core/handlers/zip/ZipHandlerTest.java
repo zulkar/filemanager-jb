@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -114,6 +115,15 @@ class ZipHandlerTest {
         FileEntity dir = FileEntityTestUtils.find("parent", zipEntity.ls());
         FileEntity file = FileEntityTestUtils.find("test.txt", dir.ls());
         Assertions.assertNotNull(file);
+    }
+
+    @Test
+    public void shouldReadArchiveOnlyOnce() throws IOException {
+        FileEntity localEntityZipSpy = Mockito.spy(new LocalFileEntity(resourceZipFile, mock(LocalStorage.class)));
+        FileEntity archiveEntity = zipHandler.createFrom(localEntityZipSpy);
+        archiveEntity.ls();
+        archiveEntity.ls();
+        verify(localEntityZipSpy, times(1)).openInputStream();
     }
 
     private void assertFileNameEquals(String expectedLocalFileName, String actual) {

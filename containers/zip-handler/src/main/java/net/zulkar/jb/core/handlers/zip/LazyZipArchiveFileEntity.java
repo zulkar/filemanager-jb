@@ -33,6 +33,7 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
     private void init() {
         try {
             zipHandler.init(this, entity);
+            initialized = true;
         } catch (IOException e) {
             errorOnInit = true;
         }
