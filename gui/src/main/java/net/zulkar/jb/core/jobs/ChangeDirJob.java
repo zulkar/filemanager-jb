@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ChangeDirJob extends CancellableBackgroundJob<FileListModel.EntityData> {
     private static final Logger log = LogManager.getLogger(ChangeDirJob.class);
@@ -26,7 +27,11 @@ public class ChangeDirJob extends CancellableBackgroundJob<FileListModel.EntityD
     @Override
     protected FileListModel.EntityData doJob() throws Exception {
         FileEntity resolved = storage.resolve(path);
-        return new FileListModel.EntityData(resolved, resolved.getParent(), resolved.ls());
+        List<FileEntity> ls = resolved.ls();
+        if (ls == null) {
+            throw new IllegalStateException(String.format("Cannot open %s", resolved.getName()));
+        }
+        return new FileListModel.EntityData(resolved, resolved.getParent(), ls);
     }
 
     @Override
