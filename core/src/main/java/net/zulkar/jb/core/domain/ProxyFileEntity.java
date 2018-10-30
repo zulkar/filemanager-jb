@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.List;
 
 public abstract class ProxyFileEntity implements FileEntity {
-    protected FileEntity entity;
+    protected final FileEntity entity;
 
 
     protected ProxyFileEntity(FileEntity entity) {
