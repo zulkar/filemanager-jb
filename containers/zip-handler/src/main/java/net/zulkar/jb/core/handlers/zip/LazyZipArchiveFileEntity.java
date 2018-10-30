@@ -16,7 +16,7 @@ import java.util.zip.ZipEntry;
 class LazyZipArchiveFileEntity extends ProxyFileEntity {
     private ZipHandler zipHandler;
 
-    private TreeNode<ZipEntry> root = new TreeNode<>(null, null);
+    private final TreeNode<ZipEntry> root = new TreeNode<>(null, null);
     private boolean errorOnInit = false;
     private boolean initialized = false;
 
@@ -30,7 +30,7 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
         return true;
     }
 
-    private void init() {
+    private synchronized void init() {
         try {
             zipHandler.init(this, entity);
             initialized = true;
@@ -143,23 +143,6 @@ class LazyZipArchiveFileEntity extends ProxyFileEntity {
             node = getOrCreateChildNode(pathElement, node);
         }
         return node;
-    }
-
-    FileEntity getClosestFileEntry(String entityName) throws FileNotFoundException {
-        TreeNode<ZipEntry> node = root;
-        String[] pathElements = StringUtils.split(entityName, "/");
-        for (String pathElement : pathElements) {
-            TreeNode<ZipEntry> newNode = node.find(n -> n.get() != null && n.getName().equals(pathElement));
-            if (newNode == null) {
-                if (node.get().isDirectory()) {
-                    throw new FileNotFoundException(String.format(getAbsolutePath() + "/" + entityName));
-                }
-                return fileEntityFrom(node);
-            }
-            node = newNode;
-        }
-        return fileEntityFrom(node);
-
     }
 
     private TreeNode<ZipEntry> getOrCreateChildNode(String pathElement, TreeNode<ZipEntry> parent) {

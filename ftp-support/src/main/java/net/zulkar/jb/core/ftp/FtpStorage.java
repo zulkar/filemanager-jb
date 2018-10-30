@@ -51,7 +51,7 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
 
 
     @Override
-    protected FtpRemoteEntity getFrom(FileEntity current, String pathElement) throws IOException {
+    protected synchronized FtpRemoteEntity getFrom(FileEntity current, String pathElement) throws IOException {
         FTPFile ftpFile = find(ftpClient.listFiles(current.getAbsolutePath()), pathElement);
         if (ftpFile == null) {
             return null;
@@ -60,7 +60,7 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
     }
 
     @Override
-    protected FtpRemoteEntity tryGetNonContainerEntity(String path) throws IOException {
+    protected synchronized FtpRemoteEntity tryGetNonContainerEntity(String path) throws IOException {
         String parent = FilenameUtils.getFullPathNoEndSeparator(path);
         FTPFile ftpFile = find(ftpClient.listFiles(parent), FilenameUtils.getName(path));
         if (ftpFile == null) {
@@ -92,7 +92,7 @@ public class FtpStorage extends AbstractStorage<FtpRemoteEntity> {
 
 
     @Override
-    public void close() throws Exception {
+    public synchronized void close() throws Exception {
         ftpClient.disconnect();
         FileUtils.deleteDirectory(cacheDir);
     }

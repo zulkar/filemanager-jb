@@ -40,7 +40,7 @@ public class ZipHandler implements ContainerHandler {
     }
 
 
-    synchronized InputStream readContent(ZipFileEntity entity) throws IOException {
+    InputStream readContent(ZipFileEntity entity) throws IOException {
         if (entity.isDir()) {
             throw new FileNotFoundException(String.format("File entity %s is a directory", entity.getName()));
         }

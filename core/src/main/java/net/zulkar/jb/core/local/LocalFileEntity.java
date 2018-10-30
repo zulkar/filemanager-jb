@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
  * file entity, located either on local disk, zip or remote dir
  */
 public class LocalFileEntity implements FileEntity {
-    private File file;
-    private LocalStorage storage;
+    private final File file;
+    private final LocalStorage storage;
 
     @VisibleForTesting
     public LocalFileEntity(File file, LocalStorage storage) {

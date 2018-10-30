@@ -12,7 +12,7 @@ import java.util.zip.ZipEntry;
 
 public class ZipFileEntity implements FileEntity {
 
-    private LazyZipArchiveFileEntity zipArchiveFileEntity;
+    private final LazyZipArchiveFileEntity zipArchiveFileEntity;
     private final ZipEntry zipEntry;
 
     ZipFileEntity(LazyZipArchiveFileEntity zipArchiveFileEntity, ZipEntry zipEntry) {
