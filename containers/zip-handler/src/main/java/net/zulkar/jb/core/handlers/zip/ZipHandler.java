@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import net.zulkar.jb.core.ContainerHandler;
 import net.zulkar.jb.core.SystemUtils;
 import net.zulkar.jb.core.domain.FileEntity;
+import net.zulkar.jb.core.handlers.zip.tree.TreeNode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
@@ -40,11 +41,11 @@ public class ZipHandler implements ContainerHandler {
     }
 
 
-    InputStream readContent(ZipFileEntity entity) throws IOException {
+    public InputStream readContent(ZipFileEntity entity) throws IOException {
         if (entity.isDir()) {
             throw new FileNotFoundException(String.format("File entity %s is a directory", entity.getName()));
         }
-        ZipInputStream zis = new ZipInputStream(entity.getZipArchiveFileEntity().openInputStream());
+        ZipInputStream zis = new ZipInputStream(entity.getInitializedZipArchive().openInputStream());
         ZipEntry entry = zis.getNextEntry();
         while (entry != null) {
             if (entry.getName().equals(entity.getZipEntry().getName())) {
@@ -66,13 +67,16 @@ public class ZipHandler implements ContainerHandler {
         return ByteStreams.limit(zis, MAX_FILE_SIZE);
     }
 
-    void init(LazyZipArchiveFileEntity archiveFileEntity, FileEntity realEntity) throws IOException {
+    public TreeNode<ZipEntry> readStructure(FileEntity realEntity) throws IOException {
+        ZipTreeBuilder builder = new ZipTreeBuilder(realEntity);
+
         try (ZipInputStream zis = new ZipInputStream(realEntity.openInputStream())) {
             ZipEntry e;
             while ((e = zis.getNextEntry()) != null) {
-                archiveFileEntity.add(e);
+                builder.addEntry(e);
             }
         }
+        return builder.getRoot();
 
     }
 }

@@ -126,6 +126,19 @@ class ZipHandlerTest {
         verify(localEntityZipSpy, times(1)).openInputStream();
     }
 
+    @Test
+    public void shouldReturnParent() throws IOException {
+        FileEntity entity = resolve("Dir1/Zdir3/");
+        assertEquals("Dir1", entity.getParent().getName());
+    }
+
+    @Test
+    public void shouldReturnSameParentForTopLevel() throws IOException {
+        FileEntity zipEntity = zipHandler.createFrom(resourceZipFileEntity);
+        FileEntity dir1 = FileEntityTestUtils.find("Dir1", zipEntity.ls());
+        assertSame(zipEntity, dir1.getParent());
+    }
+
     private void assertFileNameEquals(String expectedLocalFileName, String actual) {
         String expectedEntityName = "/" + FilenameUtils.normalizeNoEndSeparator(StringUtils.removeStart(expectedLocalFileName, rootFile.getAbsolutePath()), true);
         assertEquals(expectedEntityName, actual);

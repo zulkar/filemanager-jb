@@ -1,6 +1,7 @@
 package net.zulkar.jb.core.handlers.zip;
 
 import net.zulkar.jb.core.domain.FileEntity;
+import net.zulkar.jb.core.handlers.zip.archives.InitializedZipArchive;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
@@ -12,10 +13,10 @@ import java.util.zip.ZipEntry;
 
 public class ZipFileEntity implements FileEntity {
 
-    private final LazyZipArchiveFileEntity zipArchiveFileEntity;
+    private final InitializedZipArchive zipArchiveFileEntity;
     private final ZipEntry zipEntry;
 
-    ZipFileEntity(LazyZipArchiveFileEntity zipArchiveFileEntity, ZipEntry zipEntry) {
+    public ZipFileEntity(InitializedZipArchive zipArchiveFileEntity, ZipEntry zipEntry) {
         this.zipArchiveFileEntity = zipArchiveFileEntity;
         this.zipEntry = zipEntry;
     }
@@ -53,11 +54,11 @@ public class ZipFileEntity implements FileEntity {
         return zipArchiveFileEntity.openInputStream(this);
     }
 
-    public LazyZipArchiveFileEntity getZipArchiveFileEntity() {
+    InitializedZipArchive getInitializedZipArchive() {
         return zipArchiveFileEntity;
     }
 
-    public ZipEntry getZipEntry() {
+    ZipEntry getZipEntry() {
         return zipEntry;
     }
 
